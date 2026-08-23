@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ * Placeholder values carried over from the mobile app's palette — these get
+ * replaced once the site design is finalised.
+ */
+@theme {
+  --color-ink: #14201c;
+  --color-ink-muted: #5c6b60;
+  --color-paper: #f3f7f2;
+  --color-surface: #ffffff;
+  --color-brand: #1f6b3a;
+  --color-brand-soft: #d7ebd9;
+  --color-accent: #c45c26;
+  --color-line: #c9d6c8;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+}
