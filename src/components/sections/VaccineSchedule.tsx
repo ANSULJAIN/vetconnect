@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 
 type Dose = {
   age: string;
+  /** Shown in the timeline marker — the age is more use there than a count. */
+  mark: string;
   name: string;
   /** Diseases the dose covers — the reason a pet owner actually cares. */
   covers: string;
@@ -21,30 +23,35 @@ const SCHEDULES: Record<
     doses: [
       {
         age: "6–8 weeks",
+        mark: "6w",
         name: "First DHPPi",
         covers: "Distemper · Hepatitis · Parvovirus · Parainfluenza",
         core: true,
       },
       {
         age: "10–12 weeks",
+        mark: "10w",
         name: "DHPPi booster + Leptospirosis",
         covers: "The four above, plus Lepto — spread through rat urine and standing water",
         core: true,
       },
       {
         age: "14–16 weeks",
+        mark: "14w",
         name: "Anti-rabies",
         covers: "Rabies. Legally required, and the one that protects your family too",
         core: true,
       },
       {
         age: "From 16 weeks",
+        mark: "16w+",
         name: "Kennel cough (optional)",
         covers: "Bordetella — worth it if your dog boards, or meets other dogs at parks",
         core: false,
       },
       {
         age: "Every year",
+        mark: "1yr",
         name: "Annual booster",
         covers: "DHPPi + Leptospirosis + rabies, to keep immunity topped up",
         core: true,
@@ -57,30 +64,35 @@ const SCHEDULES: Record<
     doses: [
       {
         age: "8–9 weeks",
+        mark: "8w",
         name: "First FVRCP",
         covers: "Rhinotracheitis · Calicivirus · Panleukopenia",
         core: true,
       },
       {
         age: "12 weeks",
+        mark: "12w",
         name: "FVRCP booster",
         covers: "The same three — the second dose is what makes the first work",
         core: true,
       },
       {
         age: "16 weeks",
+        mark: "16w",
         name: "Anti-rabies",
         covers: "Rabies. Essential for any cat that goes outdoors",
         core: true,
       },
       {
         age: "From 9 weeks",
+        mark: "9w+",
         name: "Feline leukaemia (optional)",
         covers: "FeLV — recommended for outdoor cats and multi-cat homes",
         core: false,
       },
       {
         age: "Every year",
+        mark: "1yr",
         name: "Annual booster",
         covers: "FVRCP + rabies, to keep immunity topped up",
         core: true,
@@ -121,16 +133,18 @@ export function VaccineSchedule() {
       {/* timeline */}
       <ol className="relative mt-9 flex flex-col gap-0 pl-1">
         {active.doses.map((d, i) => (
-          <li key={`${species}-${i}`} className="relative flex gap-5 pb-7 last:pb-0">
+          <li key={`${species}-${i}`} className="group/dose relative flex gap-5 pb-7 last:pb-0">
             {/* rail */}
             <div className="flex flex-col items-center">
               <span
                 className={cn(
-                  "z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-[14px] font-extrabold ring-4 ring-paper",
-                  d.core ? "bg-brand text-white" : "bg-clay-soft text-clay",
+                  "z-10 flex h-13 w-13 shrink-0 items-center justify-center rounded-full text-[13px] font-extrabold ring-4 ring-paper-deep/50 transition-transform duration-300 group-hover/dose:scale-110",
+                  d.core
+                    ? "bg-brand text-white shadow-md shadow-brand/25"
+                    : "bg-surface text-clay ring-1 ring-clay/30",
                 )}
               >
-                {i + 1}
+                {d.mark}
               </span>
               {i < active.doses.length - 1 && (
                 <span aria-hidden className="w-[2px] flex-1 bg-line" />

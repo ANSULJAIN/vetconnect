@@ -215,6 +215,25 @@ export function IconRupee({ className }: Props) {
   );
 }
 
+export function IconVial({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9.4 3.2h5.2M10.4 3.2v11.2a3.1 3.1 0 0 0 6.2 0V3.2" />
+      <path d="M10.4 12.6h6.2" />
+      <path d="M7.2 20.6h9.6" />
+    </svg>
+  );
+}
+
+export function IconPin({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 21.2s6.6-5.6 6.6-10.4a6.6 6.6 0 1 0-13.2 0C5.4 15.6 12 21.2 12 21.2Z" />
+      <circle cx="12" cy="10.6" r="2.5" />
+    </svg>
+  );
+}
+
 export const SERVICE_ICONS = {
   health: IconPaw,
   behaviour: IconBehaviour,

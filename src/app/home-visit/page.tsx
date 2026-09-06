@@ -3,7 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SITE } from "@/data/site";
-import { IconCheck, IconWhatsApp } from "@/components/illustrations/PetIcons";
+import {
+  IconPin,
+  IconVial,
+  IconSyringe,
+  IconWhatsApp,
+} from "@/components/illustrations/PetIcons";
+import { IconRx, IconStethoscope } from "@/components/illustrations/Icons";
 
 export const metadata: Metadata = {
   title: "Home vet visit",
@@ -11,19 +17,24 @@ export const metadata: Metadata = {
     "A veterinarian at your door for examinations, treatment and sample collection. Currently rolling out city by city.",
 };
 
-const INCLUDES = [
-  "Full physical examination at home",
-  "On-the-spot treatment where appropriate",
-  "Sample collection for lab work",
-  "A written prescription and case notes",
+const INCLUDES: { Icon: (p: { className?: string }) => React.ReactElement; text: string }[] = [
+  { Icon: IconStethoscope, text: "Full physical examination at home" },
+  { Icon: IconSyringe, text: "On-the-spot treatment where appropriate" },
+  { Icon: IconVial, text: "Sample collection for lab work" },
+  { Icon: IconRx, text: "A written prescription and case notes" },
 ];
 
 export default function HomeVisitPage() {
   return (
     <div className="bg-paper py-14 sm:py-20">
       <Container size="narrow">
-        <span className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.13em] text-brand-deep">
-          Rolling out city by city
+        <span className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-br from-white to-brand-soft/70 py-1.5 pr-5 pl-1.5 shadow-md shadow-brand-deep/10 ring-1 ring-brand/15">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white">
+            <IconPin className="h-4 w-4" />
+          </span>
+          <span className="text-[14px] font-semibold text-brand-deep">
+            Ask if we reach your locality
+          </span>
         </span>
         <h1 className="mt-5 font-display text-[32px] leading-tight font-extrabold tracking-tight text-ink text-balance sm:text-[40px]">
           A veterinarian at your door
@@ -46,14 +57,16 @@ export default function HomeVisitPage() {
           />
         </div>
 
-        <ul className="mt-9 flex flex-col gap-3">
-          {INCLUDES.map((line) => (
+        <ul className="mt-9 grid gap-3 sm:grid-cols-2">
+          {INCLUDES.map(({ Icon, text }) => (
             <li
-              key={line}
-              className="flex items-start gap-3.5 rounded-xl bg-surface p-5 shadow-sm ring-1 ring-line-soft"
+              key={text}
+              className="group flex items-center gap-4 rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-line-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-deep/10 hover:ring-vivid/35"
             >
-              <IconCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-              <span className="text-[15.5px] text-ink-soft">{line}</span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-deep transition-all duration-300 group-hover:scale-110 group-hover:bg-vivid group-hover:text-white">
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="text-[15px] leading-snug text-ink-soft">{text}</span>
             </li>
           ))}
         </ul>
@@ -70,14 +83,14 @@ export default function HomeVisitPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <a
               href={`https://wa.me/${SITE.whatsappDigits}`}
-              className="inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-brand-deep"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-brand px-6 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-brand/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-vivid hover:shadow-xl hover:shadow-vivid/35"
             >
               <IconWhatsApp className="h-4.5 w-4.5" />
               WhatsApp us
             </a>
             <Link
               href="/consult"
-              className="inline-flex items-center rounded-full px-6 py-3.5 text-[15px] font-semibold text-ink ring-1 ring-line transition-colors hover:bg-surface"
+              className="inline-flex items-center rounded-full bg-surface px-6 py-3.5 text-[15px] font-semibold text-ink shadow-sm ring-1 ring-line transition-all duration-300 hover:-translate-y-0.5 hover:text-brand-deep hover:shadow-lg hover:ring-vivid/50"
             >
               Consult online instead — ₹{SITE.consultPrice}
             </Link>

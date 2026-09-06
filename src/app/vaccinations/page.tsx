@@ -89,14 +89,14 @@ export default function VaccinationsPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={`https://wa.me/${SITE.whatsappDigits}`}
-                className="inline-flex items-center gap-2.5 rounded-full bg-brand px-7 py-4 text-[15.5px] font-semibold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-brand-deep"
+                className="group inline-flex items-center gap-2.5 rounded-full bg-brand px-7 py-4 text-[15.5px] font-semibold text-white shadow-lg shadow-brand/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-vivid hover:shadow-xl hover:shadow-vivid/35"
               >
-                <IconWhatsApp className="h-4.5 w-4.5" />
+                <IconWhatsApp className="h-4.5 w-4.5 transition-transform duration-300 group-hover:scale-110" />
                 Book on WhatsApp
               </a>
               <Link
                 href="/consult"
-                className="inline-flex items-center rounded-full bg-surface px-7 py-4 text-[15.5px] font-semibold text-ink ring-1 ring-line transition-colors hover:ring-brand/40"
+                className="inline-flex items-center rounded-full bg-surface px-7 py-4 text-[15.5px] font-semibold text-ink shadow-sm ring-1 ring-line transition-all duration-300 hover:-translate-y-0.5 hover:text-brand-deep hover:shadow-lg hover:ring-vivid/50"
               >
                 Ask a vet first — ₹{SITE.consultPrice}
               </Link>
@@ -157,12 +157,17 @@ export default function VaccinationsPage() {
             {WHY.map(({ Icon, title, body }) => (
               <li
                 key={title}
-                className="flex gap-4 rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line-soft"
+                className="group relative flex gap-4 overflow-hidden rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-deep/10 hover:ring-vivid/35"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-deep">
+                {/* wash that sweeps in from the corner on hover */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-16 -right-16 h-32 w-32 rounded-full bg-vivid/0 blur-2xl transition-colors duration-500 group-hover:bg-vivid/20"
+                />
+                <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-deep transition-all duration-300 group-hover:scale-110 group-hover:bg-vivid group-hover:text-white">
                   <Icon className="h-5 w-5" />
                 </span>
-                <div>
+                <div className="relative">
                   <h3 className="font-display text-[17px] font-bold tracking-tight text-ink">
                     {title}
                   </h3>
