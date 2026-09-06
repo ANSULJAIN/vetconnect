@@ -50,9 +50,10 @@ export default function TermsPage() {
 
       <h2>Payment</h2>
       <p>
-        Consultations are charged at ₹{SITE.consultPrice}, payable in advance
-        through Razorpay. Prices may change, but the price shown at the time of
-        booking is the price you pay.
+        Consultations are charged at ₹{SITE.consultPrice}. Bookings are
+        confirmed over WhatsApp, where we send a payment link before the
+        consultation begins. Prices may change, but the price shown at the time
+        of booking is the price you pay.
       </p>
 
       <h2>Prescriptions</h2>

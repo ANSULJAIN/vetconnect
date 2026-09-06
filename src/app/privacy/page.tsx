@@ -45,8 +45,13 @@ export default function PrivacyPage() {
           what is needed to advise you.
         </li>
         <li>
-          <strong>Razorpay</strong>, our payment processor, which handles the
-          transaction under its own privacy policy.
+          <strong>WhatsApp (Meta)</strong>, since bookings are confirmed over
+          WhatsApp and your message is handled under Meta&rsquo;s own privacy
+          policy.
+        </li>
+        <li>
+          <strong>Our payment provider</strong>, when a payment link is issued.
+          We never see or store your card, UPI or bank credentials.
         </li>
         <li>
           <strong>Law enforcement or regulators</strong>, where we are legally

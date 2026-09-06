@@ -9,8 +9,12 @@ export const SITE = {
   /** Consultation price in rupees. Also sent to the payment API, which re-checks it. */
   consultPrice: 199,
   connectMinutes: 15,
-  whatsapp: "+917010200909",
-  whatsappDigits: "917010200909",
+  /**
+   * Bookings and support both land here. Change these two lines when the
+   * business gets its own number — every page reads from here.
+   */
+  whatsapp: "+91 93481 38852",
+  whatsappDigits: "919348138852",
   email: "care@vetconnect.co.in",
   supportEmail: "care@vetconnect.co.in",
   since: 2026,
