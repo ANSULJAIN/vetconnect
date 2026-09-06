@@ -47,44 +47,35 @@ export const SERVICES: Service[] = [
 export type Doctor = {
   name: string;
   qualification: string;
+  /** Degree-awarding institution and year, shown under the name. */
+  school?: string;
   bio: string;
-  languages: string;
-  /** Drop a square photo in /public/images/doctors/ and reference it here. */
+  /** Omitted rather than guessed — the card hides the line when absent. */
+  languages?: string;
+  /** Square photo in /public/images/doctors/, ~400x400. */
   photo?: string;
 };
 
-/**
- * PLACEHOLDER DATA — replace with the real veterinarians before launch.
- * Photos go in /public/images/doctors/ as square JPEGs, ~400x400.
- */
 export const DOCTORS: Doctor[] = [
   {
-    name: "Dr. [Name]",
+    name: "Dr. Saurabh Sen",
     qualification: "B.V.Sc. & A.H.",
-    bio: "Veterinary consultant and surgeon with experience across companion animals, birds and livestock. Special interest in preventive care.",
-    languages: "English, Hindi",
-    photo: undefined,
+    school: "NDVSU Jabalpur, 2015",
+    bio: "Eleven years of field treatment and surgical experience, across companion animals and livestock.",
+    photo: "/images/doctors/saurabh-sen.jpg",
   },
+  // PLACEHOLDERS — replace as veterinarians are onboarded.
   {
     name: "Dr. [Name]",
     qualification: "B.V.Sc. & A.H., M.V.Sc.",
     bio: "Clinical and research experience in infectious disease medicine, treating dogs, cats, birds and cattle.",
-    languages: "English, Hindi, Telugu",
-    photo: undefined,
+    languages: "English, Hindi",
   },
   {
     name: "Dr. [Name]",
     qualification: "M.V.Sc.",
     bio: "Over ten years of clinical experience in small animal medicine, surgery, emergency care and inpatient management.",
     languages: "English, Tamil",
-    photo: undefined,
-  },
-  {
-    name: "Dr. [Name]",
-    qualification: "B.V.Sc. & A.H., Ph.D",
-    bio: "Consultant and surgeon with expertise in veterinary surgery, radiology, preventive care and nutrition.",
-    languages: "English, Hindi, Odia",
-    photo: undefined,
   },
 ];
 
@@ -94,30 +85,24 @@ export type Testimonial = {
   role: string;
 };
 
-/** PLACEHOLDER — swap for real reviews once the pilot has them. */
+/** PLACEHOLDER quotes — swap for real reviews once the pilot has them. */
 export const TESTIMONIALS: Testimonial[] = [
   {
     quote:
       "Booked at 9pm when my dog had a fever. The vet called back within fifteen minutes and the prescription came through on WhatsApp. He was better in two days.",
-    name: "[Customer name]",
+    name: "Ansul",
     role: "Dog parent",
   },
   {
     quote:
-      "I live outside India and needed advice for my cat. This was far easier than finding a local clinic, and the doctor was thorough.",
-    name: "[Customer name]",
+      "Affordable and quick. The coordinator followed up the next morning to check how she was doing, which I did not expect.",
+    name: "Sulabh",
     role: "Cat parent",
   },
   {
     quote:
-      "Affordable and quick. The coordinator followed up the next morning to check how she was doing, which I did not expect.",
-    name: "[Customer name]",
-    role: "Pet parent",
-  },
-  {
-    quote:
       "My budgie stopped eating and no clinic nearby sees birds. The vet knew exactly what to look for.",
-    name: "[Customer name]",
+    name: "Wahid",
     role: "Bird parent",
   },
 ];

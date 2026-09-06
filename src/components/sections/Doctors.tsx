@@ -51,8 +51,13 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
       <p className="mt-2 rounded-full bg-paper-deep px-3.5 py-1 font-mono text-[11px] tracking-wide text-ink-soft">
         {doctor.qualification}
       </p>
+      {doctor.school && (
+        <p className="mt-2.5 text-[13px] text-ink-faint">{doctor.school}</p>
+      )}
       <p className="mt-4 text-[14px] leading-relaxed text-ink-muted">{doctor.bio}</p>
-      <p className="mt-4 text-[13px] text-ink-faint">Speaks {doctor.languages}</p>
+      {doctor.languages && (
+        <p className="mt-4 text-[13px] text-ink-faint">Speaks {doctor.languages}</p>
+      )}
     </article>
   );
 }
