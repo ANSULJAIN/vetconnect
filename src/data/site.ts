@@ -13,8 +13,8 @@ export const SITE = {
    * Bookings and support both land here. Change these two lines when the
    * business gets its own number — every page reads from here.
    */
-  whatsapp: "+91 93481 38852",
-  whatsappDigits: "919348138852",
+  whatsapp: "+91 83198 55908",
+  whatsappDigits: "918319855908",
   email: "care@vetconnect.co.in",
   supportEmail: "care@vetconnect.co.in",
   since: 2026,
