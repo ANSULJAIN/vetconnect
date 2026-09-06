@@ -66,10 +66,18 @@ export default function VaccinationsPage() {
         />
         <Container size="wide" className="relative grid items-center gap-10 py-14 lg:grid-cols-[1.15fr_1fr] lg:py-20">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3.5 py-1.5 font-mono text-[11px] font-bold tracking-[0.13em] text-brand-deep uppercase shadow-sm">
-              <IconSyringe className="h-3.5 w-3.5" />
-              At your door
-            </span>
+            {/* Pill, not a label: it states the offer and lights up on hover. */}
+            <a
+              href={`https://wa.me/${SITE.whatsappDigits}`}
+              className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-br from-white to-brand-soft/70 py-1.5 pr-5 pl-1.5 shadow-md shadow-brand-deep/10 ring-1 ring-brand/15 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-vivid/25 hover:ring-vivid/40"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white transition-colors duration-300 group-hover:bg-vivid">
+                <IconSyringe className="h-4 w-4" />
+              </span>
+              <span className="text-[14px] font-semibold text-brand-deep transition-colors duration-300 group-hover:text-vivid">
+                No carrier. No car. No clinic.
+              </span>
+            </a>
             <h1 className="mt-5 font-display text-[34px] leading-[1.08] font-extrabold tracking-tight text-ink text-balance sm:text-[46px]">
               Vaccinations, without the carrier and the car journey
             </h1>
@@ -110,13 +118,30 @@ export default function VaccinationsPage() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute right-0 bottom-4 rounded-2xl bg-surface px-5 py-3.5 shadow-lg ring-1 ring-line-soft">
-              <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-ink-faint uppercase">
-                Record issued
-              </p>
-              <p className="mt-1 font-display text-[16px] leading-none font-bold text-brand-deep">
-                Same visit
-              </p>
+            {/* Reads as a stamped card rather than a caption — hence the tilt,
+                the seal and the ruled paper texture. */}
+            <div className="group absolute right-0 bottom-2 -rotate-3 rounded-xl bg-brand-deep px-5 py-4 shadow-xl shadow-brand-deep/30 transition-all duration-300 hover:-translate-y-1 hover:rotate-0 hover:bg-vivid sm:right-2">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.13]"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(90deg,#fff 0 1px,transparent 1px 7px)",
+                }}
+              />
+              <div className="relative flex items-center gap-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/25">
+                  <IconShield className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="font-display text-[16px] leading-tight font-extrabold text-white">
+                    Signed card
+                  </p>
+                  <p className="mt-0.5 text-[12.5px] leading-tight text-brand-soft/85">
+                    before we leave
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </Container>

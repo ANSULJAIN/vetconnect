@@ -26,6 +26,9 @@
   --color-sky: #1b5c99;
   --color-sky-soft: #dbe8f4;
 
+  /* Saturated green, reserved for hover states — too loud to sit at rest. */
+  --color-vivid: #2ea75c;
+
   --color-line: #d3dcd1;
   --color-line-soft: #e4eae2;
 

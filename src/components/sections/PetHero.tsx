@@ -96,22 +96,34 @@ export function PetHero() {
             />
           </div>
 
-          {/* Kept in the upper half so the sticky booking bar never covers it. */}
-          <div className="absolute top-8 -left-1 rounded-2xl bg-surface px-5 py-3.5 shadow-lg ring-1 ring-line-soft sm:left-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
-              Consultation
-            </p>
-            <p className="mt-1 font-display text-[24px] leading-none font-extrabold text-brand-deep">
-              ₹{SITE.consultPrice}
-            </p>
-          </div>
-
-          <div className="absolute top-4 right-0 flex items-center gap-2 rounded-full bg-surface px-4 py-2.5 shadow-lg ring-1 ring-line-soft sm:right-2">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-70" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
+          {/* Price tag — tilted, ruled, and kept in the upper half so the
+              sticky booking bar never covers it. */}
+          <Link
+            href="/consult"
+            className="group absolute top-8 -left-1 -rotate-3 overflow-hidden rounded-xl bg-clay px-5 py-3.5 shadow-xl shadow-clay/30 transition-all duration-300 hover:-translate-y-1 hover:rotate-0 hover:bg-clay/90 sm:left-2"
+          >
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.14]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg,#fff 0 1px,transparent 1px 7px)",
+              }}
+            />
+            <span className="relative block text-[11px] font-semibold tracking-wide text-white/80">
+              One consultation
             </span>
-            <span className="text-[13px] font-semibold text-brand-deep">Vets available now</span>
+            <span className="relative mt-0.5 block font-display text-[26px] leading-none font-extrabold text-white">
+              ₹{SITE.consultPrice}
+            </span>
+          </Link>
+
+          <div className="absolute top-4 right-0 flex items-center gap-2.5 rounded-full bg-gradient-to-br from-white to-brand-soft/70 px-4 py-2.5 shadow-md shadow-brand-deep/10 ring-1 ring-brand/15 sm:right-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vivid opacity-70" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-vivid" />
+            </span>
+            <span className="text-[13px] font-semibold text-brand-deep">A vet is online now</span>
           </div>
         </div>
       </Container>
