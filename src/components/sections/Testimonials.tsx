@@ -23,17 +23,17 @@ export function Testimonials() {
 
 function Review({ item }: { item: Testimonial }) {
   return (
-    <figure className="flex h-full flex-col rounded-2xl bg-surface p-7 shadow-sm ring-1 ring-line-soft">
+    <figure className="flex h-full flex-col rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-deep/10 hover:ring-vivid/30">
       <div className="flex gap-0.5" aria-label="Rated 5 out of 5">
         {Array.from({ length: 5 }).map((_, i) => (
           <IconStar key={i} className="h-4 w-4 text-clay" />
         ))}
       </div>
-      <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-ink-soft">
+      <blockquote className="mt-3.5 flex-1 text-[14px] leading-relaxed text-ink-soft">
         &ldquo;{item.quote}&rdquo;
       </blockquote>
-      <figcaption className="mt-6 border-t border-line-soft pt-4">
-        <p className="font-display text-[15px] font-bold text-ink">{item.name}</p>
+      <figcaption className="mt-5 border-t border-line-soft pt-3.5">
+        <p className="font-display text-[14px] font-bold text-ink">{item.name}</p>
         <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-faint">
           {item.role}
         </p>

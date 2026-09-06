@@ -77,6 +77,24 @@ export const DOCTORS: Doctor[] = [
     bio: "Over ten years of clinical experience in small animal medicine, surgery, emergency care and inpatient management.",
     languages: "English, Tamil",
   },
+  {
+    name: "Dr. [Name]",
+    qualification: "B.V.Sc. & A.H.",
+    bio: "Avian and exotic practice — parrots, budgerigars, rabbits and guinea pigs, with a focus on nutrition and husbandry.",
+    languages: "English, Hindi",
+  },
+  {
+    name: "Dr. [Name]",
+    qualification: "M.V.Sc. (Surgery)",
+    bio: "Soft-tissue and orthopaedic surgery, post-operative care and pain management for dogs and cats.",
+    languages: "English, Telugu",
+  },
+  {
+    name: "Dr. [Name]",
+    qualification: "B.V.Sc. & A.H., M.V.Sc.",
+    bio: "Dermatology and behaviour. Works on chronic skin conditions, allergies, anxiety and litter-box problems.",
+    languages: "English, Marathi",
+  },
 ];
 
 export type Testimonial = {
@@ -104,6 +122,24 @@ export const TESTIMONIALS: Testimonial[] = [
       "My budgie stopped eating and no clinic nearby sees birds. The vet knew exactly what to look for.",
     name: "Wahid",
     role: "Bird parent",
+  },
+  {
+    quote:
+      "Being able to describe the symptoms and get a straight answer at 11pm, without loading a scared cat into a carrier, was worth far more than ₹199.",
+    name: "[Customer name]",
+    role: "Cat parent",
+  },
+  {
+    quote:
+      "The vet told me plainly that this one needed an X-ray and could not be judged over a call. I appreciated not being sold something.",
+    name: "[Customer name]",
+    role: "Dog parent",
+  },
+  {
+    quote:
+      "Clear prescription, sent within minutes, and the dosage was explained in Hindi for my mother who handles the feeding.",
+    name: "[Customer name]",
+    role: "Dog parent",
   },
 ];
 

@@ -27,36 +27,36 @@ export function Doctors() {
 
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-    <article className="flex h-full flex-col items-center rounded-2xl bg-surface p-8 text-center shadow-sm ring-1 ring-line-soft">
+    <article className="flex h-full flex-col items-center rounded-2xl bg-surface p-6 text-center shadow-sm ring-1 ring-line-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-deep/10 hover:ring-vivid/30">
       {doctor.photo ? (
         <Image
           src={doctor.photo}
           alt={doctor.name}
           width={112}
           height={112}
-          className="h-28 w-28 rounded-full object-cover ring-4 ring-brand-soft"
+          className="h-20 w-20 rounded-full object-cover ring-4 ring-brand-soft"
         />
       ) : (
         <span
           aria-hidden
-          className="flex h-28 w-28 items-center justify-center rounded-full bg-brand-soft font-display text-[30px] font-bold text-brand-deep ring-4 ring-brand-soft/60"
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-soft font-display text-[22px] font-bold text-brand-deep ring-4 ring-brand-soft/60"
         >
           {initials(doctor.name)}
         </span>
       )}
 
-      <h3 className="mt-5 font-display text-[20px] font-bold tracking-tight text-ink">
+      <h3 className="mt-4 font-display text-[17px] leading-tight font-bold tracking-tight text-ink">
         {doctor.name}
       </h3>
-      <p className="mt-2 rounded-full bg-paper-deep px-3.5 py-1 font-mono text-[11px] tracking-wide text-ink-soft">
+      <p className="mt-2 rounded-full bg-paper-deep px-3 py-0.5 font-mono text-[10px] tracking-wide text-ink-soft">
         {doctor.qualification}
       </p>
       {doctor.school && (
-        <p className="mt-2.5 text-[13px] text-ink-faint">{doctor.school}</p>
+        <p className="mt-2 text-[12px] text-ink-faint">{doctor.school}</p>
       )}
-      <p className="mt-4 text-[14px] leading-relaxed text-ink-muted">{doctor.bio}</p>
+      <p className="mt-3 line-clamp-3 text-[13.5px] leading-relaxed text-ink-muted">{doctor.bio}</p>
       {doctor.languages && (
-        <p className="mt-4 text-[13px] text-ink-faint">Speaks {doctor.languages}</p>
+        <p className="mt-auto pt-3 text-[12px] text-ink-faint">Speaks {doctor.languages}</p>
       )}
     </article>
   );

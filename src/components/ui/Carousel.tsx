@@ -76,7 +76,7 @@ export function Carousel({
             className={cn(
               "shrink-0 snap-start",
               // deliberately not a clean third — the next card must peek
-              "w-[86%] sm:w-[58%] lg:w-[38%]",
+              "w-[78%] sm:w-[44%] lg:w-[29%]",
               itemClassName,
             )}
           >
