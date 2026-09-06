@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PetHero } from "@/components/sections/PetHero";
 import { Services } from "@/components/sections/Services";
+import { PetBand } from "@/components/sections/PetBand";
 import { Doctors } from "@/components/sections/Doctors";
 import { WhyUs } from "@/components/sections/WhyUs";
 import { Testimonials } from "@/components/sections/Testimonials";
@@ -18,6 +19,7 @@ export default function Home() {
     <>
       <PetHero />
       <Services />
+      <PetBand />
       <Doctors />
       <WhyUs />
       <Testimonials />

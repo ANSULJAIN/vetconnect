@@ -7,13 +7,7 @@ export function WhyUs() {
   return (
     <section className="bg-paper py-18 sm:py-24">
       <Container size="narrow">
-        <p className="text-center text-[17px] leading-relaxed text-ink-muted">
-          Talk to an expert vet online about dogs, cats, birds, rabbits, guinea
-          pigs, turtles and fish. Ask anything concerning your pet&rsquo;s
-          health, nutrition, behaviour and wellbeing.
-        </p>
-
-        <h2 className="mt-14 text-center font-display text-[27px] leading-tight font-extrabold tracking-tight text-ink text-balance sm:text-[33px]">
+        <h2 className="text-center font-display text-[27px] leading-tight font-extrabold tracking-tight text-ink text-balance sm:text-[33px]">
           Why book an online consultation with VetConnect?
         </h2>
 

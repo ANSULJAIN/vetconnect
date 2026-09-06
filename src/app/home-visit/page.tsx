@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SITE } from "@/data/site";
@@ -32,6 +33,18 @@ export default function HomeVisitPage() {
           sample collection, we send a verified veterinarian to your home — no
           carrier, no car journey, no waiting room for an anxious animal.
         </p>
+
+        <div className="mt-9 overflow-hidden rounded-2xl shadow-lg shadow-brand-deep/10">
+          <Image
+            src="/images/pets/vet-mask.jpg"
+            alt="A veterinarian with a dog during a home visit"
+            width={900}
+            height={900}
+            priority
+            sizes="(min-width: 768px) 42rem, 92vw"
+            className="aspect-[16/9] w-full object-cover"
+          />
+        </div>
 
         <ul className="mt-9 flex flex-col gap-3">
           {INCLUDES.map((line) => (

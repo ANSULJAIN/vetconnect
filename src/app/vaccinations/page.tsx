@@ -95,22 +95,20 @@ export default function VaccinationsPage() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-xs lg:max-w-none">
-            <div className="relative aspect-square">
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-surface shadow-xl shadow-brand-deep/5"
-                style={{ borderRadius: "54% 46% 43% 57% / 48% 44% 56% 52%" }}
+          <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+            <div
+              className="relative aspect-square overflow-hidden shadow-xl shadow-brand-deep/10"
+              style={{ borderRadius: "54% 46% 43% 57% / 48% 44% 56% 52%" }}
+            >
+              <Image
+                src="/images/pets/vet-exam.jpg"
+                alt="A veterinarian examining a dog"
+                width={900}
+                height={900}
+                priority
+                sizes="(min-width: 1024px) 28rem, 90vw"
+                className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center p-14">
-                <Image
-                  src="/images/logo-mark.png"
-                  alt=""
-                  width={600}
-                  height={585}
-                  className="h-auto w-full max-w-[210px] object-contain"
-                />
-              </div>
             </div>
             <div className="absolute right-0 bottom-4 rounded-2xl bg-surface px-5 py-3.5 shadow-lg ring-1 ring-line-soft">
               <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-ink-faint uppercase">

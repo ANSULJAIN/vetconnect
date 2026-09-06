@@ -81,22 +81,19 @@ export function PetHero() {
 
         {/* visual */}
         <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="relative aspect-square">
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-surface shadow-xl shadow-brand-deep/5"
-              style={{ borderRadius: "58% 42% 47% 53% / 45% 50% 50% 55%" }}
+          <div
+            className="relative aspect-square overflow-hidden shadow-xl shadow-brand-deep/10"
+            style={{ borderRadius: "58% 42% 47% 53% / 45% 50% 50% 55%" }}
+          >
+            <Image
+              src="/images/pets/owner-dog.jpg"
+              alt="A pet owner holding her puppy"
+              width={900}
+              height={900}
+              priority
+              sizes="(min-width: 1024px) 34rem, 90vw"
+              className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 flex items-center justify-center p-12">
-              <Image
-                src="/images/logo-mark.png"
-                alt="VetConnect"
-                width={600}
-                height={585}
-                priority
-                className="h-auto w-full max-w-[300px] object-contain"
-              />
-            </div>
           </div>
 
           {/* Kept in the upper half so the sticky booking bar never covers it. */}
