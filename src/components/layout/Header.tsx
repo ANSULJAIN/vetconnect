@@ -47,7 +47,7 @@ export function Header() {
             <span className="font-display text-[20px] font-extrabold tracking-tight text-brand-deep">
               VetConnect
             </span>
-            <span className="mt-0.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-ink-faint">
+            <span className="mt-0.5 font-mono text-[8.5px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
               {SITE.tagline}
             </span>
           </span>

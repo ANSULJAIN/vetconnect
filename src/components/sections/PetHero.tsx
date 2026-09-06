@@ -118,13 +118,6 @@ export function PetHero() {
             </span>
           </Link>
 
-          <div className="absolute top-4 right-0 flex items-center gap-2.5 rounded-full bg-gradient-to-br from-white to-brand-soft/70 px-4 py-2.5 shadow-md shadow-brand-deep/10 ring-1 ring-brand/15 sm:right-2">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vivid opacity-70" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-vivid" />
-            </span>
-            <span className="text-[13px] font-semibold text-brand-deep">A vet is online now</span>
-          </div>
         </div>
       </Container>
     </section>

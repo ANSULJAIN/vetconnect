@@ -4,11 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Horizontal scroll-snap carousel with arrow controls.
+ * Horizontal scroll-snap carousel with arrows and dots.
  *
  * Native scrolling does the work, so it stays swipeable on touch and keyboard
- * accessible without a library. The arrows page by the width of one visible
- * item and disable themselves at each end.
+ * accessible without a library. Items are sized so the next one always peeks
+ * past the edge — a flush row reads as a static grid and nobody discovers the
+ * scroll.
  */
 export function Carousel({
   children,
@@ -24,12 +25,20 @@ export function Carousel({
   const trackRef = useRef<HTMLUListElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  const [scrollable, setScrollable] = useState(false);
+  const [current, setCurrent] = useState(0);
 
   const sync = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setScrollable(max > 4);
     setAtStart(el.scrollLeft <= 2);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
+    setAtEnd(el.scrollLeft >= max - 2);
+
+    const first = el.firstElementChild as HTMLElement | null;
+    const step = first ? first.offsetWidth + 20 : 1;
+    setCurrent(Math.round(el.scrollLeft / step));
   }, []);
 
   useEffect(() => {
@@ -44,13 +53,15 @@ export function Carousel({
     };
   }, [sync]);
 
-  const page = (dir: -1 | 1) => {
+  const scrollToIndex = (i: number) => {
     const el = trackRef.current;
     if (!el) return;
     const first = el.firstElementChild as HTMLElement | null;
     const step = first ? first.offsetWidth + 20 : el.clientWidth * 0.8;
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
+    el.scrollTo({ left: i * step, behavior: "smooth" });
   };
+
+  const page = (dir: -1 | 1) => scrollToIndex(current + dir);
 
   return (
     <div className={cn("relative", className)}>
@@ -64,7 +75,8 @@ export function Carousel({
             key={i}
             className={cn(
               "shrink-0 snap-start",
-              "w-[85%] sm:w-[48%] lg:w-[31.5%]",
+              // deliberately not a clean third — the next card must peek
+              "w-[86%] sm:w-[58%] lg:w-[38%]",
               itemClassName,
             )}
           >
@@ -73,24 +85,44 @@ export function Carousel({
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => page(-1)}
-        disabled={atStart}
-        aria-label="Previous"
-        className="absolute top-1/2 -left-2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-ink shadow-md ring-1 ring-line transition-all hover:bg-paper disabled:pointer-events-none disabled:opacity-0 lg:flex"
-      >
-        <Chevron className="h-4 w-4 rotate-180" />
-      </button>
-      <button
-        type="button"
-        onClick={() => page(1)}
-        disabled={atEnd}
-        aria-label="Next"
-        className="absolute top-1/2 -right-2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-ink shadow-md ring-1 ring-line transition-all hover:bg-paper disabled:pointer-events-none disabled:opacity-0 lg:flex"
-      >
-        <Chevron className="h-4 w-4" />
-      </button>
+      {scrollable && (
+        <>
+          <button
+            type="button"
+            onClick={() => page(-1)}
+            disabled={atStart}
+            aria-label="Previous"
+            className="absolute top-1/2 -left-3 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-ink shadow-md ring-1 ring-line transition-all hover:bg-vivid hover:text-white hover:ring-vivid disabled:pointer-events-none disabled:opacity-0 lg:flex"
+          >
+            <Chevron className="h-4 w-4 rotate-180" />
+          </button>
+          <button
+            type="button"
+            onClick={() => page(1)}
+            disabled={atEnd}
+            aria-label="Next"
+            className="absolute top-1/2 -right-3 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-ink shadow-md ring-1 ring-line transition-all hover:bg-vivid hover:text-white hover:ring-vivid disabled:pointer-events-none disabled:opacity-0 lg:flex"
+          >
+            <Chevron className="h-4 w-4" />
+          </button>
+
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {children.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => scrollToIndex(i)}
+                aria-label={`Go to item ${i + 1}`}
+                aria-current={current === i}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  current === i ? "w-7 bg-brand" : "w-2 bg-line hover:bg-brand/40",
+                )}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
