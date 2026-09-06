@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { StickyCTA } from "@/components/sections/StickyCTA";
+import { SITE } from "@/data/site";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -21,13 +25,16 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VetConnect — a verified vet at the farm gate",
+  title: {
+    default: `VetConnect — online veterinary consultation at ₹${SITE.consultPrice}`,
+    template: "%s | VetConnect",
+  },
   description:
-    "Two-tier veterinary dispatch for rural India. Triage in minutes, a verified veterinarian at the farm gate the same day.",
+    "Consult a verified veterinarian online for your pet. Connect in 15 minutes, get a written prescription, from the comfort of your home.",
   openGraph: {
-    title: "VetConnect — a verified vet at the farm gate",
+    title: "VetConnect — online veterinary consultation",
     description:
-      "Two-tier veterinary dispatch for rural India. Triage in minutes, a verified veterinarian at the farm gate the same day.",
+      "Consult a verified veterinarian online for your pet. Connect in 15 minutes, get a written prescription.",
     type: "website",
   },
 };
@@ -38,7 +45,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden">{children}</body>
+      <body className="flex min-h-full flex-col overflow-x-hidden bg-paper">
+        <Header />
+        {/* StickyCTA lives inside main so it stops travelling at the footer. */}
+        <main className="flex-1">
+          {children}
+          <StickyCTA />
+        </main>
+        <Footer />
+      </body>
     </html>
   );
 }

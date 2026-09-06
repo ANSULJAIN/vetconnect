@@ -1,16 +1,24 @@
 # VetConnect website
 
-Static marketing site. Next.js 16 App Router with `output: "export"` — there is no
-server at runtime, so no API routes, no server actions, no dynamic rendering.
+Marketing and booking site for the **urban pet consultation** business. The
+livestock side of VetConnect is a separate mobile app and does not live here.
+
+Next.js 16 App Router with `output: "export"` — there is no server at runtime,
+so no API routes, no server actions, no dynamic rendering. Anything that needs
+a server goes in `functions/` as a Cloudflare Pages Function instead.
 
 ## Constraints
 
 - **Static export only.** Anything requiring a server will fail at build time.
-- **`next/image` is unoptimized** (no image server). Size and compress images before
-  committing them to `public/images/`.
-- **Base path.** Production serves from `/vetconnect/`, driven by
-  `NEXT_PUBLIC_BASE_PATH`. Never hard-code absolute asset paths; use `next/link`
-  and `next/image`, which apply the prefix automatically.
+- **Server-side work goes in `functions/`,** not in `src/app/api`. Those are
+  Cloudflare Workers with their own `tsconfig.json` (Workers types, not DOM);
+  the root `tsconfig.json` excludes the directory. See PAYMENTS.md.
+- **Secrets never enter `src/`.** Anything the frontend imports ends up in the
+  JS bundle. `NEXT_PUBLIC_*` is public by definition.
+- **`next/image` is unoptimized** (no image server). Size and compress images
+  before committing them to `public/images/`.
+- **No base path.** The site is served from the root of vetconnect.co.in. Do not
+  set `NEXT_PUBLIC_BASE_PATH` — it would prefix every asset URL and break them.
 
 ## Conventions
 
