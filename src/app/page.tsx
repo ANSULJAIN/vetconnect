@@ -1,33 +1,27 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { Hero } from "@/components/sections/Hero";
-import { Stats } from "@/components/sections/Stats";
-import { Problem } from "@/components/sections/Problem";
-import { HowItWorks } from "@/components/sections/HowItWorks";
-import { Marquee } from "@/components/sections/Marquee";
-import { Verification } from "@/components/sections/Verification";
-import { ForVets } from "@/components/sections/ForVets";
-import { Pilot } from "@/components/sections/Pilot";
-import { FAQ } from "@/components/sections/FAQ";
-import { CTA } from "@/components/sections/CTA";
+import type { Metadata } from "next";
+import { PetHero } from "@/components/sections/PetHero";
+import { Services } from "@/components/sections/Services";
+import { Doctors } from "@/components/sections/Doctors";
+import { WhyUs } from "@/components/sections/WhyUs";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { PetFAQ } from "@/components/sections/PetFAQ";
+import { SITE } from "@/data/site";
+
+export const metadata: Metadata = {
+  title: `Online Veterinary Consultation 24/7 | Consult a Vet at ₹${SITE.consultPrice}`,
+  description:
+    "Consult a verified veterinarian online for your dog, cat, bird or exotic pet. Connect in 15 minutes, get a written prescription. Available across India.",
+};
 
 export default function Home() {
   return (
     <>
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <Stats />
-        <Problem />
-        <HowItWorks />
-        <Marquee />
-        <Verification />
-        <ForVets />
-        <Pilot />
-        <FAQ />
-        <CTA />
-      </main>
-      <Footer />
+      <PetHero />
+      <Services />
+      <Doctors />
+      <WhyUs />
+      <Testimonials />
+      <PetFAQ />
     </>
   );
 }

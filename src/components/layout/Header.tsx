@@ -1,23 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { IconStethoscope } from "@/components/illustrations/Icons";
+import { NAV, SITE } from "@/data/site";
 import { cn } from "@/lib/utils";
-
-const LINKS: [string, string][] = [
-  ["How it works", "#how"],
-  ["For vets", "#vets"],
-  ["The pilot", "#pilot"],
-  ["FAQ", "#faq"],
-];
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -34,46 +29,56 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        open && "bg-paper py-3 shadow-[0_1px_0_rgba(20,32,28,0.07)]",
-        !open && scrolled && "bg-paper/85 py-3 shadow-[0_1px_0_rgba(20,32,28,0.07)] backdrop-blur-xl",
-        !open && !scrolled && "bg-transparent py-5",
+        "sticky inset-x-0 top-0 z-50 bg-surface transition-shadow duration-300",
+        (scrolled || open) && "shadow-[0_1px_0_rgba(20,32,28,0.08)]",
       )}
     >
-      <Container className="flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <IconStethoscope className="h-6 w-6 text-brand" />
-          <span className="font-display text-[19px] font-bold tracking-tight text-ink">
-            VetConnect
+      <Container size="wide" className="flex items-center gap-6 py-3">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
+          <Image
+            src="/images/logo-mark.png"
+            alt=""
+            width={600}
+            height={585}
+            priority
+            className="h-10 w-auto"
+          />
+          <span className="flex flex-col leading-none">
+            <span className="font-display text-[20px] font-extrabold tracking-tight text-brand-deep">
+              VetConnect
+            </span>
+            <span className="mt-0.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-ink-faint">
+              {SITE.tagline}
+            </span>
           </span>
-        </a>
+        </Link>
 
-        <nav className="hidden items-center gap-9 md:flex">
-          {LINKS.map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
-              className="text-[14px] text-ink-muted transition-colors hover:text-ink"
+        <nav className="ml-auto hidden items-center gap-7 lg:flex">
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-[13.5px] font-medium tracking-tight text-ink-soft uppercase transition-colors hover:text-brand"
             >
-              {label}
-            </a>
+              {item.label}
+            </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <a
-            href="#contact"
-            className="hidden rounded-full bg-ink px-5 py-2.5 text-[14px] font-medium text-paper transition-colors hover:bg-brand-deep sm:inline-block"
+        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <Link
+            href="/consult"
+            className="hidden rounded-full bg-clay px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-clay/90 sm:inline-block"
           >
-            Get in touch
-          </a>
+            Consult a vet
+          </Link>
 
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-ink ring-1 ring-line transition-colors hover:bg-surface md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink ring-1 ring-line transition-colors hover:bg-paper lg:hidden"
           >
             <svg viewBox="0 0 20 20" className="h-4.5 w-4.5" aria-hidden="true">
               <path
@@ -91,28 +96,28 @@ export function Header() {
       {/* mobile panel */}
       <div
         className={cn(
-          "overflow-hidden transition-[max-height,opacity] duration-400 md:hidden",
-          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
+          "overflow-hidden border-t border-line-soft transition-[max-height,opacity] duration-300 lg:hidden",
+          open ? "max-h-96 opacity-100" : "max-h-0 border-t-0 opacity-0",
         )}
       >
-        <Container className="flex flex-col gap-1 pb-5 pt-4">
-          {LINKS.map(([label, href]) => (
-            <a
-              key={href}
-              href={href}
+        <Container className="flex flex-col gap-1 py-4">
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
               onClick={() => setOpen(false)}
-              className="rounded-xl px-3 py-3 text-[16px] text-ink-soft transition-colors hover:bg-surface"
+              className="rounded-xl px-3 py-3 text-[16px] text-ink-soft transition-colors hover:bg-paper"
             >
-              {label}
-            </a>
+              {item.label}
+            </Link>
           ))}
-          <a
-            href="#contact"
+          <Link
+            href="/consult"
             onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-ink px-5 py-3.5 text-center text-[15px] font-medium text-paper"
+            className="mt-2 rounded-full bg-clay px-5 py-3.5 text-center text-[15px] font-semibold text-white"
           >
-            Get in touch
-          </a>
+            Consult a vet — ₹{SITE.consultPrice}
+          </Link>
         </Container>
       </div>
     </header>
