@@ -22,6 +22,10 @@
   --color-clay: #9a4a1e;
   --color-clay-soft: #f5e6dc;
 
+  /* Third accent, used only to separate the language step in the booking form. */
+  --color-sky: #1b5c99;
+  --color-sky-soft: #dbe8f4;
+
   --color-line: #d3dcd1;
   --color-line-soft: #e4eae2;
 

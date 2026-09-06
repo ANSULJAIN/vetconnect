@@ -109,6 +109,74 @@ export function IconWhatsApp({ className }: Props) {
   );
 }
 
+/* ---- booking-form field icons ---- */
+
+export function IconCalendar({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.4" />
+      <path d="M3.5 9.6h17M8 3.5v3M16 3.5v3" />
+      <path d="M7.6 13.2h.01M12 13.2h.01M16.4 13.2h.01M7.6 16.8h.01M12 16.8h.01" />
+    </svg>
+  );
+}
+
+export function IconClockSmall({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.2V12l3.2 1.9" />
+    </svg>
+  );
+}
+
+export function IconGender({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="10.2" cy="13.6" r="5.1" />
+      <path d="M14 9.8 20 3.8M15.4 3.8H20v4.6" />
+    </svg>
+  );
+}
+
+export function IconGlobe({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17" />
+      <path d="M12 3.5c2.1 2.3 3.2 5.3 3.2 8.5S14.1 18.2 12 20.5c-2.1-2.3-3.2-5.3-3.2-8.5S9.9 5.8 12 3.5Z" />
+    </svg>
+  );
+}
+
+export function IconChat({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 6.2A2.2 2.2 0 0 1 6.2 4h11.6A2.2 2.2 0 0 1 20 6.2v7.4a2.2 2.2 0 0 1-2.2 2.2H9.4L5 19.6v-3.8H6.2A2.2 2.2 0 0 1 4 13.6Z" />
+      <path d="M8.4 8.6h7.2M8.4 11.6h4.4" />
+    </svg>
+  );
+}
+
+export function IconUser({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="8.4" r="3.9" />
+      <path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0" />
+    </svg>
+  );
+}
+
+export function IconCake({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 20.2h16M5.4 20.2v-6.1a2 2 0 0 1 2-2h9.2a2 2 0 0 1 2 2v6.1" />
+      <path d="M12 11.9V8.6M12 5.6v.01" />
+      <path d="M5.4 15.6c1.6 0 1.6 1.3 3.3 1.3s1.6-1.3 3.3-1.3 1.6 1.3 3.3 1.3 1.6-1.3 3.3-1.3" />
+    </svg>
+  );
+}
+
 export const SERVICE_ICONS = {
   health: IconPaw,
   behaviour: IconBehaviour,
