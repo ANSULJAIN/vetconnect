@@ -177,6 +177,44 @@ export function IconCake({ className }: Props) {
   );
 }
 
+/* ---- vaccination page ---- */
+
+export function IconSyringe({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="m14.6 4.6 4.8 4.8M17 2.2l4.8 4.8" />
+      <path d="M16.2 7.8 8.4 15.6l-.9 3.6-3.3 1.4 1.4-3.3 3.6-.9 7.8-7.8Z" />
+      <path d="m11.4 9 2.4 2.4M9 11.4l2.4 2.4" />
+    </svg>
+  );
+}
+
+export function IconShield({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 3.2 5 5.8v5.4c0 4.2 2.9 8.1 7 9.6 4.1-1.5 7-5.4 7-9.6V5.8Z" />
+      <path d="m9.2 11.8 2.1 2.1 3.9-4" />
+    </svg>
+  );
+}
+
+export function IconPlane({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M10.5 12.2 3.4 10V7.6l1.8.6 1 1.5 3.2.9 2.5-4.8c.5-1 1.2-1.7 2-1.7s1.1.9.8 2l-1 4 5 1.4c.9.3 1.5.8 1.5 1.5s-.6 1.2-1.5 1.5l-5 1.4 1 4c.3 1.1 0 2-.8 2s-1.5-.7-2-1.7l-2.5-4.8-3.2.9-1 1.5-1.8.6V14Z" />
+    </svg>
+  );
+}
+
+export function IconRupee({ className }: Props) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M9.2 7.6h5.6M9.2 10.4h5.6M13 7.6c1.6 0 2.4 1 2.4 2.4S14.6 13 13 13H9.2l4.6 4.4" />
+    </svg>
+  );
+}
+
 export const SERVICE_ICONS = {
   health: IconPaw,
   behaviour: IconBehaviour,
