@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PetHero } from "@/components/sections/PetHero";
+import { ServicePicker } from "@/components/sections/ServicePicker";
 import { Services } from "@/components/sections/Services";
 import { PetBand } from "@/components/sections/PetBand";
 import { Doctors } from "@/components/sections/Doctors";
@@ -18,6 +19,7 @@ export default function Home() {
   return (
     <>
       <PetHero />
+      <ServicePicker />
       <Services />
       <PetBand />
       <Doctors />

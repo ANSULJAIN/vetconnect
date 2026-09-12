@@ -27,17 +27,7 @@ export const NAV: { label: string; href: string }[] = [
   { label: "FAQ", href: "/#faq" },
 ];
 
-export const PETS = [
-  "Dog",
-  "Cat",
-  "Bird",
-  "Rabbit",
-  "Guinea Pig",
-  "Fish",
-  "Turtle",
-  "Cow",
-  "Other",
-] as const;
+export const PETS = ["Dog", "Cat", "Cow", "Buffalo", "Cattle"] as const;
 
 export const LANGUAGES = [
   "English",

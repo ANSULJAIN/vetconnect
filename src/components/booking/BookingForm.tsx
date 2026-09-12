@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Calendar, formatLong, toISODate } from "@/components/booking/Calendar";
 import { BookingConfirm, type Booking } from "@/components/booking/BookingConfirm";
+import { VoiceInput } from "@/components/booking/VoiceInput";
 import {
   IconCake,
   IconCalendar,
@@ -222,6 +223,17 @@ export function BookingForm() {
             placeholder="Symptoms, when they started, appetite and energy levels, anything you have already tried…"
             className={cn(inputClass, "resize-y")}
           />
+          <VoiceInput
+            language={language}
+            onTranscript={(text) =>
+              setIssue((prev) => (prev ? `${prev.trimEnd()} ${text}` : text))
+            }
+          />
+          <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
+            Prefer to send a voice note? Book below, then record one in the
+            WhatsApp chat — a vet can often tell more from hearing a cough than
+            from reading about it.
+          </p>
         </Section>
 
         {/* ---------- 3 · you ---------- */}

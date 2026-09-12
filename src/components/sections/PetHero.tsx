@@ -26,11 +26,11 @@ export function PetHero() {
         }}
       />
 
-      <Container size="wide" className="relative grid items-center gap-12 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
-        <div>
-          <h1 className="font-display text-[38px] leading-[1.08] font-extrabold tracking-tight text-ink text-balance sm:text-[52px] lg:text-[58px]">
-            Need advice on your pet&rsquo;s health?
-            <br />
+      <Container size="wide" className="relative grid items-center gap-8 py-10 sm:gap-12 sm:py-14 lg:grid-cols-[1.05fr_1fr] lg:py-24">
+        <div className="order-2 lg:order-1">
+          <h1 className="font-display text-[30px] leading-[1.1] font-extrabold tracking-tight text-ink text-balance sm:text-[46px] sm:leading-[1.08] lg:text-[58px]">
+            Need advice on your pet&rsquo;s health?{" "}
+            <br className="hidden sm:inline" />
             Now ask a vet online{" "}
             <span className="relative inline-block text-brand">
               24/7
@@ -41,7 +41,7 @@ export function PetHero() {
             </span>
           </h1>
 
-          <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-ink-muted">
+          <p className="mt-5 max-w-lg text-[15.5px] leading-relaxed text-ink-muted sm:mt-6 sm:text-[17px]">
             Get trusted veterinary advice from the comfort of your home. Verified
             veterinarians, a written prescription, and a follow-up — without a
             trip to the clinic.
@@ -79,8 +79,8 @@ export function PetHero() {
           </ul>
         </div>
 
-        {/* visual */}
-        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+        {/* visual — first on mobile, second on desktop */}
+        <div className="relative order-1 mx-auto w-full max-w-xs sm:max-w-sm lg:order-2 lg:max-w-none">
           <div
             className="relative aspect-square overflow-hidden shadow-xl shadow-brand-deep/10"
             style={{ borderRadius: "58% 42% 47% 53% / 45% 50% 50% 55%" }}
