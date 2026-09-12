@@ -13,6 +13,8 @@ export type Env = {
   RAZORPAY_KEY_SECRET: string;
   /** Optional D1 binding. Bookings are only persisted when this is configured. */
   DB?: D1Database;
+  /** Optional R2 bucket for voice notes. Recording is hidden when absent. */
+  RECORDINGS?: R2Bucket;
 };
 
 /** Consultation price in paise. Server-side truth — the browser never sets it. */

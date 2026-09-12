@@ -24,6 +24,12 @@ export default function PrivacyPage() {
           language and the description of the problem you enter when booking.
         </li>
         <li>
+          <strong>Voice notes</strong> — if you choose to record one, the audio
+          is stored so the veterinarian can listen before calling you back. It
+          is deleted automatically after 90 days, and you can ask us to delete
+          it sooner.
+        </li>
+        <li>
           <strong>Payment records</strong> — the transaction identifier and
           status returned by our payment processor. We never see or store your
           card, UPI or bank credentials.

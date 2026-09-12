@@ -17,6 +17,7 @@ export type Booking = {
   name: string;
   phone: string;
   email: string;
+  voiceUrl?: string | null;
 };
 
 /**
@@ -51,6 +52,7 @@ export function BookingConfirm({
     ["Pet", [booking.pet, booking.gender, booking.age].filter(Boolean).join(" · ")],
     ["Language", booking.language],
     ["Call back on", booking.phone],
+    ...(booking.voiceUrl ? ([["Voice note", "Attached"]] as [string, string][]) : []),
   ];
 
   return (

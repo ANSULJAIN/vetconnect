@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Calendar, formatLong, toISODate } from "@/components/booking/Calendar";
 import { BookingConfirm, type Booking } from "@/components/booking/BookingConfirm";
 import { VoiceInput } from "@/components/booking/VoiceInput";
+import { VoiceRecorder } from "@/components/booking/VoiceRecorder";
 import {
   IconCake,
   IconCalendar,
@@ -48,6 +49,7 @@ function buildMessage(b: Booking) {
     `*Name:* ${b.name}`,
     `*Phone:* ${b.phone}`,
     b.email ? `*Email:* ${b.email}` : "",
+    b.voiceUrl ? `*Voice note:* ${b.voiceUrl}` : "",
     "",
     `Consultation ₹${SITE.consultPrice}. Please send the payment link.`,
   ]
@@ -66,6 +68,7 @@ export function BookingForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [voiceUrl, setVoiceUrl] = useState<string | null>(null);
 
   const [sent, setSent] = useState<{ booking: Booking; waUrl: string } | null>(null);
 
@@ -89,6 +92,7 @@ export function BookingForm() {
       name: name.trim(),
       phone: phone.replace(/\D/g, "").slice(-10),
       email: email.trim(),
+      voiceUrl,
     };
 
     const waUrl = `https://wa.me/${SITE.whatsappDigits}?text=${encodeURIComponent(
@@ -229,10 +233,10 @@ export function BookingForm() {
               setIssue((prev) => (prev ? `${prev.trimEnd()} ${text}` : text))
             }
           />
-          <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
-            Prefer to send a voice note? Book below, then record one in the
-            WhatsApp chat — a vet can often tell more from hearing a cough than
-            from reading about it.
+          <VoiceRecorder onUploaded={setVoiceUrl} />
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-faint">
+            A cough or laboured breathing often tells a vet more than a
+            description of one — a recording is worth adding.
           </p>
         </Section>
 
