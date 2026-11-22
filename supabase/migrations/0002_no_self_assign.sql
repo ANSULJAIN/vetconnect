@@ -43,6 +43,8 @@ end $$;
 revoke execute on function public.claim_consultation, public.assign_consultation from anon;
 
 -- A database-level backstop for every path, including the backend's auto-assign.
+-- NOT VALID: enforced for every new or changed row, without failing on old
+-- test bookings made before this rule existed.
 alter table public.consultations drop constraint if exists consultations_not_self_assigned;
 alter table public.consultations add constraint consultations_not_self_assigned
-  check (doctor_id is null or doctor_id <> customer_id);
+  check (doctor_id is null or doctor_id <> customer_id) not valid;
