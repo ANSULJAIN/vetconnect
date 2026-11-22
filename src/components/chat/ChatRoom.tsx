@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { StatusBadge, UrgencyBadge } from "@/components/account/StatusBadge";
-import { supabase, type Consultation, type Doctor, type Message, type Profile } from "@/lib/supabase";
+import { accessToken, supabase, type Consultation, type Doctor, type Message, type Profile } from "@/lib/supabase";
 import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +41,9 @@ function ChatRoom({ consultationId, userId, profile }: { consultationId: string;
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Google Meet set-up panel for the vet (first time, or to change the link). */
+  const [meetPanel, setMeetPanel] = useState(false);
+  const [meetDraft, setMeetDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -167,10 +170,101 @@ function ChatRoom({ consultationId, userId, profile }: { consultationId: string;
     setSending(false);
   }
 
+  /**
+   * Video call via Google Meet. The vet's Meet link is remembered on their
+   * device, so after the first time it is one tap: post the link in the chat
+   * and open Meet. First time, we open meet.new and ask them to paste the link.
+   */
+  async function postMeetLink(link: string) {
+    const { error } = await sb.from("messages").insert({
+      consultation_id: consultationId,
+      sender_id: userId,
+      sender_role: "doctor",
+      body: `🎥 Video call — tap to join:\n${link}`,
+    });
+    if (error) {
+      setError("Could not send the call link. The chat may have closed — refresh to check.");
+      return false;
+    }
+    track("video_call_link", {});
+    return true;
+  }
+
+  const [meetBusy, setMeetBusy] = useState(false);
+
+  /**
+   * Preferred: our backend creates a Google Meet room (owned by the VetConnect
+   * Google account, inviting vet + pet parent) and posts it in the chat.
+   * Fallback when Google isn't connected yet: the vet's own saved Meet link,
+   * or the paste-a-link panel.
+   */
+  async function startVideoCall() {
+    if (consult?.meet_link) {
+      window.open(consult.meet_link, "_blank", "noopener,noreferrer");
+      return;
+    }
+    // Open the tab now, while it still counts as the vet's click; fill it in
+    // once the link arrives (otherwise popup blockers stop it).
+    const tab = window.open("about:blank", "_blank");
+    setMeetBusy(true);
+    setError(null);
+    try {
+      const token = await accessToken();
+      const res = await fetch("/api/meet", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${token ?? ""}` },
+        body: JSON.stringify({ consultationId }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; link?: string; reason?: string; error?: string };
+      if (data.ok && data.link) {
+        track("video_call_link", { auto: true });
+        if (tab) tab.location.href = data.link;
+        else window.open(data.link, "_blank", "noopener,noreferrer");
+        return;
+      }
+      tab?.close();
+      if (data.reason === "not_connected") {
+        // Fallback: the vet's own Meet link.
+        const saved = safeGet(MEET_KEY);
+        if (saved && isMeetLink(saved)) {
+          window.open(saved, "_blank", "noopener,noreferrer");
+          postMeetLink(saved);
+        } else {
+          setMeetDraft("");
+          setMeetPanel(true);
+        }
+        return;
+      }
+      setError(data.error ?? "Could not start the video call. Try again.");
+    } catch {
+      tab?.close();
+      setError("Could not start the video call. Check your connection and try again.");
+    } finally {
+      setMeetBusy(false);
+    }
+  }
+
+  async function sendMeetDraft() {
+    const link = meetDraft.trim();
+    if (!isMeetLink(link)) {
+      setError("That doesn't look like a Google Meet link. It should start with https://meet.google.com/");
+      return;
+    }
+    setError(null);
+    safeSet(MEET_KEY, link);
+    if (await postMeetLink(link)) setMeetPanel(false);
+  }
+
   async function closeConsult() {
     if (!confirm("Close this consultation? The chat becomes read-only.")) return;
     const { error } = await sb.rpc("close_consultation", { c_id: consultationId });
-    if (error) setError("Could not close: " + error.message);
+    if (error) {
+      setError(
+        error.message.includes("not_self_assigned")
+          ? "This is a test case where the vet and the pet parent are the same account, so it can't be closed."
+          : "Could not close the consultation. Refresh and try again.",
+      );
+    }
   }
 
   if (consult === undefined) return <p className="py-20 text-center text-ink-muted">Loading chat…</p>;
@@ -202,10 +296,25 @@ function ChatRoom({ consultationId, userId, profile }: { consultationId: string;
           </p>
         </div>
         <div className="flex gap-2">
-          {isDoctor && (
-            <a href={`tel:+91${consult.customer_phone}`} className="rounded-full bg-brand-soft px-4 py-2 text-[13px] font-semibold text-brand-deep">
-              Call owner
+          {!isDoctor && consult.meet_link && canPost && (
+            <a
+              href={consult.meet_link}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="rounded-full bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-vivid"
+            >
+              🎥 Join video call
             </a>
+          )}
+          {isDoctor && canPost && (
+            <button
+              type="button"
+              onClick={startVideoCall}
+              disabled={meetBusy}
+              className="rounded-full bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-vivid disabled:opacity-60"
+            >
+              {meetBusy ? "Starting…" : "🎥 Video call"}
+            </button>
           )}
           {(isDoctor || profile?.role === "admin") && consult.status === "active" && (
             <button type="button" onClick={closeConsult} className="rounded-full px-4 py-2 text-[13px] font-semibold text-clay ring-1 ring-clay/40">
@@ -217,6 +326,42 @@ function ChatRoom({ consultationId, userId, profile }: { consultationId: string;
           </Link>
         </div>
       </div>
+
+      {/* Google Meet set-up for the vet */}
+      {isDoctor && meetPanel && (
+        <div className="border-b border-line-soft bg-surface px-5 py-4 text-[14px] text-ink-soft">
+          <p className="font-semibold text-ink">Start a Google Meet video call</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-[13.5px]">
+            <li>
+              <a href="https://meet.new" target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
+                Open Google Meet
+              </a>{" "}
+              (creates a new meeting in your Google account).
+            </li>
+            <li>Copy the meeting link (meet.google.com/…).</li>
+            <li>Paste it below — we send it to the pet parent and remember it for next time.</li>
+          </ol>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input
+              value={meetDraft}
+              onChange={(e) => setMeetDraft(e.target.value)}
+              placeholder="https://meet.google.com/abc-defg-hij"
+              className="w-full flex-1 rounded-xl bg-paper px-4 py-2.5 text-[14.5px] ring-1 ring-line focus:ring-2 focus:ring-brand focus:outline-none"
+            />
+            <div className="flex gap-2">
+              <button type="button" onClick={sendMeetDraft} className="rounded-full bg-brand px-5 py-2.5 text-[14px] font-semibold text-white">
+                Send link
+              </button>
+              <button type="button" onClick={() => setMeetPanel(false)} className="rounded-full px-4 py-2.5 text-[14px] text-ink-muted ring-1 ring-line">
+                Cancel
+              </button>
+            </div>
+          </div>
+          {safeGet(MEET_KEY) && (
+            <p className="mt-2 text-[12.5px] text-ink-faint">Replacing your saved link: {safeGet(MEET_KEY)}</p>
+          )}
+        </div>
+      )}
 
       {/* case panel for the doctor */}
       {isDoctor && (
@@ -328,7 +473,7 @@ function Bubble({ m, mine }: { m: Message; mine: boolean }) {
   if (m.sender_role === "system") {
     return (
       <p className="mx-auto max-w-[90%] rounded-xl bg-paper px-4 py-2.5 text-center text-[12.5px] leading-relaxed whitespace-pre-line text-ink-muted">
-        {m.body}
+        <Linkified text={m.body} />
       </p>
     );
   }
@@ -344,7 +489,7 @@ function Bubble({ m, mine }: { m: Message; mine: boolean }) {
         )}
       >
         {m.attachment_path && <Attachment path={m.attachment_path} mine={mine} />}
-        {m.body}
+        <Linkified text={m.body} mine={mine} />
       </div>
       <span className="mt-1 px-1 text-[10.5px] text-ink-faint">
         {new Date(m.created_at).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}
@@ -395,4 +540,51 @@ function notify(m: Message) {
     document.removeEventListener("visibilitychange", reset);
   };
   document.addEventListener("visibilitychange", reset);
+}
+
+const MEET_KEY = "vc_meet_link";
+
+function isMeetLink(v: string) {
+  return /^https:\/\/meet\.google\.com\/[a-z0-9-]+(\?.*)?$/i.test(v.trim());
+}
+
+function safeGet(k: string) {
+  try {
+    return localStorage.getItem(k);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(k: string, v: string) {
+  try {
+    localStorage.setItem(k, v);
+  } catch {
+    // Storage blocked: the vet just pastes the link again next time.
+  }
+}
+
+/** Renders https:// links as tappable links; everything else stays plain text. */
+function Linkified({ text, mine }: { text: string | null; mine?: boolean }) {
+  if (!text) return null;
+  const parts = text.split(/(https:\/\/[^\s]+)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^https:\/\//.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noreferrer noopener"
+            className={cn("font-semibold break-all underline", mine ? "text-white" : "text-brand")}
+          >
+            {part.includes("meet.google.com") ? "Join video call →" : part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
 }

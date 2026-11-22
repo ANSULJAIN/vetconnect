@@ -50,6 +50,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   }
 
   result.razorpay_webhook_secret = env.RAZORPAY_WEBHOOK_SECRET ? "set" : "missing";
+  // Optional: reported, but doesn't make the check fail.
+  result.google_meet_info = env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET ? "client set" : "not set up";
 
   // Recent activity, no personal data: status and timing of the last few records.
   let recent: unknown = null;
@@ -66,7 +68,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   }
 
   const allOk = Object.entries(result)
-    .filter(([k]) => !k.endsWith("_shape"))
+    .filter(([k]) => !k.endsWith("_shape") && !k.endsWith("_info"))
     .every(([, v]) => v.startsWith("ok") || v === "set");
   return json({ ok: allOk, ...result, recent }, allOk ? 200 : 503);
 };

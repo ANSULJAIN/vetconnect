@@ -58,6 +58,7 @@ export type Consultation = {
   paid_at: string | null;
   closed_at: string | null;
   chat_expires_at: string | null;
+  meet_link: string | null;
 };
 
 export type Doctor = {

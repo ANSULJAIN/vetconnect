@@ -161,3 +161,9 @@ export async function autoAssign(
   });
   return pick.id;
 }
+
+/** True when this user's profile has the admin role. */
+export async function isAdmin(db: SupabaseClient, userId: string) {
+  const { data } = await db.from("profiles").select("role").eq("id", userId).maybeSingle();
+  return data?.role === "admin";
+}

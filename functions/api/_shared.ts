@@ -22,6 +22,9 @@ export type Env = {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** Test copies only: charge this many paise instead of the real price. Ignored on the live domain. */
   TEST_PRICE_PAISE?: string;
+  /** Google OAuth client for creating Meet links (see _google.ts). */
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
   /** For the AI intake assistant. */
   ANTHROPIC_API_KEY?: string;
   /** Optional R2 bucket for voice notes. Recording is hidden when absent. */

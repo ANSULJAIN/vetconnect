@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { StatusBadge, UrgencyBadge } from "@/components/account/StatusBadge";
-import { supabase, type Consultation, type Doctor, type Profile } from "@/lib/supabase";
+import { accessToken, supabase, type Consultation, type Doctor, type Profile } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
-type Tab = "consultations" | "doctors" | "funnel";
+type Tab = "consultations" | "doctors" | "funnel" | "settings";
 
 export function AdminArea() {
   return (
@@ -29,7 +29,7 @@ function AdminPanel() {
     <div>
       <h1 className="font-display text-[28px] font-extrabold tracking-tight text-ink">Admin</h1>
       <div className="mt-5 flex gap-2">
-        {(["consultations", "doctors", "funnel"] as Tab[]).map((t) => (
+        {(["consultations", "doctors", "funnel", "settings"] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
@@ -47,6 +47,7 @@ function AdminPanel() {
         {tab === "consultations" && <Consultations />}
         {tab === "doctors" && <Doctors />}
         {tab === "funnel" && <Funnel />}
+        {tab === "settings" && <Settings />}
       </div>
     </div>
   );
@@ -264,6 +265,84 @@ function Funnel() {
           </tbody>
         </table>
       )}
+    </div>
+  );
+}
+
+/* ---------------- settings: Google Meet connection ---------------- */
+
+function Settings() {
+  const [status, setStatus] = useState<{ configured: boolean; connected: boolean; account: string | null } | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    const token = await accessToken();
+    const res = await fetch("/api/google/connect", { headers: { authorization: `Bearer ${token ?? ""}` } });
+    const data = await res.json().catch(() => null);
+    if (data?.ok) setStatus(data);
+    else setMsg(data?.error ?? "Could not load the Google status.");
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(load);
+    // Result of the Google approval round-trip (?google=connected etc.).
+    const result = new URLSearchParams(location.search).get("google");
+    if (result) {
+      queueMicrotask(() =>
+        setMsg(
+          result === "connected"
+            ? "✅ Google connected. Vets can now start Meet calls."
+            : `Google connection didn't complete (${result}). Try again.`,
+        ),
+      );
+      history.replaceState(null, "", location.pathname);
+    }
+  }, [load]);
+
+  async function connect() {
+    setBusy(true);
+    setMsg(null);
+    const token = await accessToken();
+    const res = await fetch("/api/google/connect", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token ?? ""}` },
+      body: JSON.stringify({ returnTo: `${location.origin}/admin/` }),
+    });
+    const data = await res.json().catch(() => null);
+    if (data?.ok && data.url) {
+      location.assign(data.url);
+      return;
+    }
+    setMsg(data?.error ?? "Could not start the Google connection.");
+    setBusy(false);
+  }
+
+  return (
+    <div className="max-w-2xl rounded-2xl bg-surface p-6 ring-1 ring-line-soft">
+      <h2 className="font-display text-[19px] font-bold text-ink">Google Meet video calls</h2>
+      <p className="mt-1.5 text-[14px] leading-relaxed text-ink-muted">
+        When a vet taps <strong>Video call</strong>, a Google Meet room is created in the connected VetConnect Google
+        account and sent to the pet parent in the chat (and as a calendar invite).
+      </p>
+      {status === null ? (
+        <p className="mt-4 text-ink-muted">Checking…</p>
+      ) : !status.configured ? (
+        <p className="mt-4 rounded-xl bg-clay-soft px-4 py-3 text-[14px] text-clay">
+          Not set up yet: add <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in Cloudflare (Production),
+          then redeploy. Until then, vets can paste their own Meet link.
+        </p>
+      ) : (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className={cn("rounded-full px-3 py-1.5 text-[13px] font-semibold", status.connected ? "bg-brand-soft text-brand-deep" : "bg-paper-deep text-ink-muted")}>
+            {status.connected ? `Connected${status.account ? `: ${status.account}` : ""}` : "Not connected"}
+          </span>
+          <button type="button" onClick={connect} disabled={busy} className="rounded-full bg-brand px-5 py-2.5 text-[14px] font-semibold text-white disabled:opacity-50">
+            {busy ? "Opening Google…" : status.connected ? "Reconnect Google" : "Connect Google"}
+          </button>
+        </div>
+      )}
+      {msg && <p className="mt-3 text-[14px] text-ink-soft">{msg}</p>}
     </div>
   );
 }
