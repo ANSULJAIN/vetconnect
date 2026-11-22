@@ -33,6 +33,7 @@ export const NAV: { label: string; href: string }[] = [
   { label: "Home vet visit", href: "/home-visit" },
   { label: "Vaccinations at home", href: "/vaccinations" },
   { label: "FAQ", href: "/#faq" },
+  { label: "For vets", href: "/doctor" },
 ];
 
 export const PETS = ["Dog", "Cat", "Rabbit", "Cow", "Buffalo", "Cattle"] as const;
