@@ -20,6 +20,8 @@ export type Env = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
   SUPABASE_PUBLISHABLE_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  /** Test copies only: charge this many paise instead of the real price. Ignored on the live domain. */
+  TEST_PRICE_PAISE?: string;
   /** For the AI intake assistant. */
   ANTHROPIC_API_KEY?: string;
   /** Optional R2 bucket for voice notes. Recording is hidden when absent. */
@@ -46,6 +48,19 @@ function slotStartMinutes(label: string): number | null {
   if (!m) return null;
   const h = (Number(m[1]) % 12) + (m[3] === "PM" ? 12 : 0);
   return h * 60 + Number(m[2]);
+}
+
+const LIVE_HOSTS = ["vetconnect.co.in", "www.vetconnect.co.in"];
+
+/**
+ * Test-price override for preview deployments. Never applies on the live
+ * domain, even if TEST_PRICE_PAISE is set there by mistake.
+ */
+export function testPricePaise(env: Env, request: Request): number | null {
+  const host = new URL(request.url).hostname;
+  const n = Number(env.TEST_PRICE_PAISE);
+  if (LIVE_HOSTS.includes(host) || !Number.isInteger(n) || n < 100) return null; // Razorpay minimum ₹1
+  return n;
 }
 
 /** Night slots (10 PM onwards), and "as soon as possible" booked after 10 PM, cost more. */

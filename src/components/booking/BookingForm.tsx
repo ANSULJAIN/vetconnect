@@ -26,6 +26,15 @@ type Tone = "clay" | "brand" | "sky";
 
 const ASAP = "As soon as possible";
 
+/**
+ * Test copies only (set NEXT_PUBLIC_TEST_PRICE_RUPEES in Cloudflare Preview).
+ * The server applies its own matching override and ignores it on the live domain.
+ */
+const TEST_PRICE = (() => {
+  const n = Number(process.env.NEXT_PUBLIC_TEST_PRICE_RUPEES);
+  return Number.isInteger(n) && n >= 1 ? n : null;
+})();
+
 /** "8:30 AM", from minutes since midnight. 1440 reads as midnight. */
 function timeLabel(mins: number) {
   const h = Math.floor(mins / 60) % 24;
@@ -102,7 +111,7 @@ export function BookingForm() {
   const isPast = (start: number) => isToday && start <= nowMinutes();
   const picked = SLOTS.find((s) => s.label === slot && !isPast(s.start)) ?? null;
   const effectiveSlot = picked ? picked.label : ASAP;
-  const price = priceFor(picked);
+  const price = TEST_PRICE ?? priceFor(picked);
   const [pet, setPet] = useState<string>(PETS[0]);
   const [gender, setGender] = useState("Male");
   const [age, setAge] = useState("");
@@ -390,7 +399,7 @@ export function BookingForm() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-[12px] font-bold tracking-[0.06em] text-ink-muted uppercase">
-                Consultation
+                Consultation{TEST_PRICE ? " · test price" : ""}
               </p>
               <p className="mt-1 font-display text-[28px] leading-none font-extrabold text-brand-deep">
                 ₹{price}

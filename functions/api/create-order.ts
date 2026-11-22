@@ -12,7 +12,7 @@
  * /api/verify-payment or the webhook.
  */
 
-import { badRequest, json, priceForSlot, razorpayAuth, validateBooking, type Env } from "./_shared";
+import { badRequest, json, priceForSlot, razorpayAuth, testPricePaise, validateBooking, type Env } from "./_shared";
 import { admin, supabaseConfigured, userFromRequest } from "./_supabase";
 
 type Intake = {
@@ -71,7 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!parsed.ok) return badRequest(parsed.error);
   const b = parsed.booking;
   const intake = cleanIntake(body.intake);
-  const amount = priceForSlot(b.slot);
+  const amount = testPricePaise(env, request) ?? priceForSlot(b.slot);
 
   // Keep the profile's name and phone current — the doctor sees them.
   await db.from("profiles").update({ full_name: b.name, phone: b.phone }).eq("id", user.id);
