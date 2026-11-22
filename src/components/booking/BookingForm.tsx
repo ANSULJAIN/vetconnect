@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Calendar, formatLong, toISODate } from "@/components/booking/Calendar";
 import { BookingConfirm, type Booking } from "@/components/booking/BookingConfirm";
 import { VoiceInput } from "@/components/booking/VoiceInput";
+import { Checkout, type CheckoutBooking } from "@/components/booking/Checkout";
+import { supabaseReady } from "@/lib/supabase";
+import { track } from "@/lib/track";
 import {
   IconCake,
   IconCalendar,
@@ -110,13 +113,41 @@ export function BookingForm() {
   const [email, setEmail] = useState("");
 
   const [sent, setSent] = useState<{ booking: Booking; waUrl: string } | null>(null);
+  const [checkout, setCheckout] = useState<CheckoutBooking | null>(null);
 
   const phoneOk = /^[6-9]\d{9}$/.test(phone.replace(/\D/g, "").slice(-10));
   const canSubmit = name.trim().length > 1 && phoneOk && issue.trim().length > 4;
 
+  function details(): CheckoutBooking {
+    return {
+      date,
+      dateLong: formatLong(date),
+      slot: effectiveSlot,
+      price,
+      pet,
+      gender,
+      age: age.trim(),
+      language,
+      issue: issue.trim(),
+      name: name.trim(),
+      phone: phone.replace(/\D/g, "").slice(-10),
+      email: email.trim(),
+    };
+  }
+
+  /** Primary path once accounts are live: AI intake -> sign in -> pay -> chat. */
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
+    if (!supabaseReady) return bookOnWhatsApp();
+    track("booking_start", { pet, price });
+    setCheckout(details());
+  }
+
+  function bookOnWhatsApp() {
+    if (!canSubmit) return;
+    track("whatsapp_click", { pet, price });
+    setCheckout(null);
 
     const booking: Booking = {
       ref: makeRef(),
@@ -146,6 +177,9 @@ export function BookingForm() {
 
   return (
     <>
+      {checkout && (
+        <Checkout booking={checkout} onClose={() => setCheckout(null)} onWhatsApp={bookOnWhatsApp} />
+      )}
       {sent && (
         <BookingConfirm
           booking={sent.booking}
@@ -367,14 +401,34 @@ export function BookingForm() {
               disabled={!canSubmit}
               className="group inline-flex items-center gap-2.5 rounded-full bg-brand px-8 py-4 text-[16px] font-semibold text-white shadow-lg shadow-brand/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-vivid hover:shadow-xl hover:shadow-vivid/35 disabled:pointer-events-none disabled:opacity-45 disabled:shadow-none"
             >
-              <IconWhatsApp className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-              Book on WhatsApp
+              {supabaseReady ? (
+                <>Continue — ₹{price}</>
+              ) : (
+                <>
+                  <IconWhatsApp className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                  Book on WhatsApp
+                </>
+              )}
             </button>
           </div>
-          <p className="mt-3 text-[12.5px] text-ink-faint">
-            We open WhatsApp with your details — press send, and we reply with the
-            payment link. Nothing is charged here.
-          </p>
+          {supabaseReady ? (
+            <p className="mt-3 text-[12.5px] text-ink-faint">
+              Sign in, pay securely, and chat with your vet right here.{" "}
+              <button
+                type="button"
+                onClick={bookOnWhatsApp}
+                disabled={!canSubmit}
+                className="font-semibold text-brand underline underline-offset-2 disabled:opacity-50"
+              >
+                Prefer WhatsApp?
+              </button>
+            </p>
+          ) : (
+            <p className="mt-3 text-[12.5px] text-ink-faint">
+              We open WhatsApp with your details — press send, and we reply with the
+              payment link. Nothing is charged here.
+            </p>
+          )}
         </div>
       </form>
     </>

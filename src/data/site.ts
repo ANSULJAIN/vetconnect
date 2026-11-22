@@ -24,6 +24,8 @@ export const SITE = {
   email: "care@vetconnect.co.in",
   supportEmail: "care@vetconnect.co.in",
   since: 2026,
+  /** AI follow-up questions before payment (functions/api/intake.ts). Off until we add the API key. */
+  aiIntake: false,
 } as const;
 
 export const NAV: { label: string; href: string }[] = [

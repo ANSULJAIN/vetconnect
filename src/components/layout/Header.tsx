@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
+import { AccountLink } from "@/components/layout/AccountLink";
 import { NAV, SITE } from "@/data/site";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +67,7 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <AccountLink className="hidden rounded-full px-4 py-2.5 ring-1 ring-line sm:inline-block" />
           <Link
             href="/consult"
             className="hidden rounded-full bg-clay px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-clay/90 sm:inline-block"
@@ -111,6 +113,10 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <AccountLink
+            onClick={() => setOpen(false)}
+            className="rounded-xl px-3 py-3 text-[16px] hover:bg-paper"
+          />
           <Link
             href="/consult"
             onClick={() => setOpen(false)}
