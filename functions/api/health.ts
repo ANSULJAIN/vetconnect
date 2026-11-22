@@ -15,9 +15,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   if (!supabaseConfigured(env)) {
     result.supabase_secret = "missing";
   } else {
+    // Raw request first: shows exactly what Supabase says about the key.
+    const key = (env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY ?? "").trim();
+    const raw = await fetch(`${env.SUPABASE_URL}/rest/v1/profiles?select=id&limit=1`, { headers: { apikey: key } });
+    const rawBody = raw.ok ? "" : (await raw.text()).slice(0, 160);
+    result.supabase_secret_raw = raw.ok ? "ok" : `error: HTTP ${raw.status} ${rawBody}`;
+    // Shape only (never the value): helps spot a wrong or truncated paste.
+    result.supabase_secret_shape = `${key.slice(0, 10)}… length ${key.length}${key !== (env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY ?? "") ? " (had spaces)" : ""}`;
     try {
-      const { error } = await admin(env).from("profiles").select("id", { count: "exact", head: true });
-      result.supabase_secret = error ? `error: ${error.message.slice(0, 120)}` : "ok";
+      const { error, status } = await admin(env).from("profiles").select("id").limit(1);
+      result.supabase_secret = error ? `error: HTTP ${status} ${error.message.slice(0, 120)}` : "ok";
     } catch (e) {
       result.supabase_secret = `error: ${String(e).slice(0, 120)}`;
     }
@@ -44,6 +51,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 
   result.razorpay_webhook_secret = env.RAZORPAY_WEBHOOK_SECRET ? "set" : "missing";
 
-  const allOk = Object.values(result).every((v) => v.startsWith("ok") || v === "set");
+  const allOk = Object.entries(result)
+    .filter(([k]) => !k.endsWith("_shape"))
+    .every(([, v]) => v.startsWith("ok") || v === "set");
   return json({ ok: allOk, ...result }, allOk ? 200 : 503);
 };
