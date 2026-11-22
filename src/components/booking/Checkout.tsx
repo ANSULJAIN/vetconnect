@@ -30,7 +30,12 @@ type Step = "intake" | "login" | "pay";
 
 /* Razorpay Checkout is a script tag, not an npm package. */
 type RazorpayResponse = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
-type RazorpayCtor = new (opts: Record<string, unknown>) => { open: () => void; on: (e: string, cb: () => void) => void };
+type RazorpayFailure = { error?: { description?: string; reason?: string; code?: string } };
+type RazorpayCtor = new (opts: Record<string, unknown>) => {
+  open: () => void;
+  close?: () => void;
+  on: (e: string, cb: (r: RazorpayFailure) => void) => void;
+};
 
 function loadRazorpay(): Promise<RazorpayCtor> {
   const w = window as unknown as { Razorpay?: RazorpayCtor };
@@ -188,9 +193,13 @@ export function Checkout({
         },
         modal: { ondismiss: () => setBusy(false) },
       });
-      rzp.on("payment.failed", () => {
-        track("payment_failed", { code: order.code });
-        setError("The payment didn't go through. You can try again — you have not been charged.");
+      rzp.on("payment.failed", (r) => {
+        const why = r?.error?.description;
+        track("payment_failed", { code: order.code, reason: r?.error?.reason ?? null });
+        setError(
+          `The payment didn't go through${why ? `: ${why}` : "."} Press Pay to try again, or use another UPI app or card. ` +
+            "If money left your account, it is refunded automatically.",
+        );
         setBusy(false);
       });
       rzp.open();
