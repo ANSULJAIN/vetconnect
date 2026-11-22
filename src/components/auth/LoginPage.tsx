@@ -30,7 +30,7 @@ export function LoginPage() {
           Consult pet parents online, on your schedule
         </h1>
         <ul className="mt-4 space-y-1.5 text-[15px] text-ink-muted">
-          <li>✓ Chat and video consults with paid, pre-screened cases</li>
+          <li>✓ Chat and phone consults with paid cases — details shared upfront</li>
           <li>✓ Go online whenever you&rsquo;re free — cases come to you</li>
           <li>✓ Verified vets only: we check your council registration</li>
         </ul>
