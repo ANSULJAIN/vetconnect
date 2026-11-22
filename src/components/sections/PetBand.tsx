@@ -24,7 +24,7 @@ export function PetBand() {
                 Whoever shares your home, we can help
               </h2>
               <p className="mt-4 max-w-md text-[16px] leading-relaxed text-brand-soft/85">
-                Dogs, cats, birds, rabbits, guinea pigs, turtles and fish. Ask our
+                Dogs, cats, birds, rabbits and buffaloes. Ask our
                 veterinarians about health, nutrition, behaviour and wellbeing —
                 anything that is not an emergency.
               </p>

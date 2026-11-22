@@ -8,6 +8,12 @@ export const SITE = {
   tagline: "Bringing pet care home",
   /** Consultation price in rupees. Also sent to the payment API, which re-checks it. */
   consultPrice: 199,
+  /** Late-night consultations (from `nightFromHour` until close) cost this. */
+  nightPrice: 299,
+  nightFromHour: 22,
+  /** Vets take calls from `openHour` until `closeHour` (24 = midnight). */
+  openHour: 8,
+  closeHour: 24,
   connectMinutes: 15,
   /**
    * Bookings and support both land here. Change these two lines when the
@@ -27,7 +33,7 @@ export const NAV: { label: string; href: string }[] = [
   { label: "FAQ", href: "/#faq" },
 ];
 
-export const PETS = ["Dog", "Cat", "Cow", "Buffalo", "Cattle"] as const;
+export const PETS = ["Dog", "Cat", "Rabbit", "Cow", "Buffalo", "Cattle"] as const;
 
 export const LANGUAGES = [
   "English",

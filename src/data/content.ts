@@ -64,13 +64,15 @@ export const DOCTORS: Doctor[] = [
     bio: "Eleven years of field treatment and surgical experience, across companion animals and livestock.",
     photo: "/images/doctors/saurabh-sen.jpg",
   },
-  // PLACEHOLDERS — replace as veterinarians are onboarded.
   {
-    name: "Dr. [Name]",
-    qualification: "B.V.Sc. & A.H., M.V.Sc.",
-    bio: "Clinical and research experience in infectious disease medicine, treating dogs, cats, birds and cattle.",
+    name: "Dr. Pawan Singh",
+    // TODO: confirm qualification, school and bio with Dr. Singh.
+    qualification: "B.V.Sc. & A.H.",
+    bio: "Companion animal practice, treating dogs and cats in clinic and at home.",
     languages: "English, Hindi",
+    photo: "/images/doctors/pawan-singh.jpg",
   },
+  // PLACEHOLDERS — replace as veterinarians are onboarded.
   {
     name: "Dr. [Name]",
     qualification: "M.V.Sc.",
@@ -80,7 +82,7 @@ export const DOCTORS: Doctor[] = [
   {
     name: "Dr. [Name]",
     qualification: "B.V.Sc. & A.H.",
-    bio: "Avian and exotic practice — parrots, budgerigars, rabbits and guinea pigs, with a focus on nutrition and husbandry.",
+    bio: "Avian and exotic practice — parrots, budgerigars and rabbits, with a focus on nutrition and husbandry.",
     languages: "English, Hindi",
   },
   {
@@ -158,7 +160,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Can I consult for an exotic pet?",
-    a: "Yes. We take consultations for rabbits, guinea pigs, hamsters, turtles and fish. Mention the species when you book so we can assign the right veterinarian.",
+    a: "Yes. We take consultations for rabbits and hamsters. Mention the species when you book so we can assign the right veterinarian.",
   },
   {
     q: "I cannot identify what is wrong with my pet. Can I still consult?",

@@ -50,7 +50,8 @@ export default function TermsPage() {
 
       <h2>Payment</h2>
       <p>
-        Consultations are charged at ₹{SITE.consultPrice}. Bookings are
+        Consultations are charged at ₹{SITE.consultPrice}, or ₹
+        {SITE.nightPrice} for slots from 10 PM to midnight. Bookings are
         confirmed over WhatsApp, where we send a payment link before the
         consultation begins. Prices may change, but the price shown at the time
         of booking is the price you pay.

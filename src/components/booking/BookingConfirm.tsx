@@ -9,6 +9,7 @@ export type Booking = {
   date: string;
   dateLong: string;
   slot: string;
+  price: number;
   pet: string;
   gender: string;
   age: string;
@@ -49,6 +50,7 @@ export function BookingConfirm({
   const rows: [string, string][] = [
     ["Reference", booking.ref],
     ["When", `${booking.dateLong} · ${booking.slot}`],
+    ["Fee", `₹${booking.price}`],
     ["Pet", [booking.pet, booking.gender, booking.age].filter(Boolean).join(" · ")],
     ["Language", booking.language],
     ["Call back on", booking.phone],

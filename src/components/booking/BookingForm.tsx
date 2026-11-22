@@ -22,14 +22,48 @@ import { cn } from "@/lib/utils";
 /** Each step carries its own accent so a selection reads as "this section". */
 type Tone = "clay" | "brand" | "sky";
 
-const TIME_SLOTS = [
-  "As soon as possible",
-  "10:00 – 12:00",
-  "12:00 – 15:00",
-  "15:00 – 18:00",
-  "18:00 – 21:00",
-  "21:00 – 23:00",
+const ASAP = "As soon as possible";
+
+/** "8:30 AM", from minutes since midnight. 1440 reads as midnight. */
+function timeLabel(mins: number) {
+  const h = Math.floor(mins / 60) % 24;
+  const m = mins % 60;
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+}
+
+type Slot = { start: number; short: string; label: string; night: boolean };
+
+/** Half-hour slots while vets are on call — nothing between midnight and 8 AM. */
+const SLOTS: Slot[] = Array.from(
+  { length: (SITE.closeHour - SITE.openHour) * 2 },
+  (_, i) => {
+    const start = SITE.openHour * 60 + i * 30;
+    return {
+      start,
+      short: timeLabel(start),
+      label: `${timeLabel(start)} – ${timeLabel(start + 30)}`,
+      night: start >= SITE.nightFromHour * 60,
+    };
+  },
+);
+
+const SLOT_GROUPS: { title: string; from: number; to: number }[] = [
+  { title: "Morning", from: 0, to: 12 * 60 },
+  { title: "Afternoon", from: 12 * 60, to: 17 * 60 },
+  { title: "Evening", from: 17 * 60, to: SITE.nightFromHour * 60 },
+  { title: "Late night", from: SITE.nightFromHour * 60, to: 24 * 60 },
 ];
+
+function nowMinutes() {
+  const d = new Date();
+  return d.getHours() * 60 + d.getMinutes();
+}
+
+/** Late-night price for night slots, and for "as soon as possible" booked after 10 PM. */
+function priceFor(slot: Slot | null) {
+  const night = slot ? slot.night : nowMinutes() >= SITE.nightFromHour * 60;
+  return night ? SITE.nightPrice : SITE.consultPrice;
+}
 
 /** Short, human, and unique enough to quote back over chat. */
 function makeRef() {
@@ -51,7 +85,7 @@ function buildMessage(b: Booking) {
     b.email ? `*Email:* ${b.email}` : "",
     b.voiceUrl ? `*Voice note:* ${b.voiceUrl}` : "",
     "",
-    `Consultation ₹${SITE.consultPrice}. Please send the payment link.`,
+    `Consultation ₹${b.price}. Please send the payment link.`,
   ]
     .filter((l) => l !== "")
     .join("\n");
@@ -59,7 +93,14 @@ function buildMessage(b: Booking) {
 
 export function BookingForm() {
   const [date, setDate] = useState(() => toISODate(new Date()));
-  const [slot, setSlot] = useState(TIME_SLOTS[0]);
+  const [slot, setSlot] = useState(ASAP);
+
+  // A slot that has already started today can't be booked.
+  const isToday = date === toISODate(new Date());
+  const isPast = (start: number) => isToday && start <= nowMinutes();
+  const picked = SLOTS.find((s) => s.label === slot && !isPast(s.start)) ?? null;
+  const effectiveSlot = picked ? picked.label : ASAP;
+  const price = priceFor(picked);
   const [pet, setPet] = useState<string>(PETS[0]);
   const [gender, setGender] = useState("Male");
   const [age, setAge] = useState("");
@@ -83,7 +124,8 @@ export function BookingForm() {
       ref: makeRef(),
       date,
       dateLong: formatLong(date),
-      slot,
+      slot: effectiveSlot,
+      price,
       pet,
       gender,
       age: age.trim(),
@@ -132,24 +174,47 @@ export function BookingForm() {
               <SubLabel icon={IconClockSmall} tone="clay">
                 Preferred time
               </SubLabel>
-              <div className="mt-3 flex flex-col gap-2">
-                {TIME_SLOTS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setSlot(t)}
-                    aria-pressed={slot === t}
-                    className={cn(
-                      "rounded-xl px-4 py-3 text-left text-[14.5px] font-medium transition-all",
-                      slot === t
-                        ? "bg-clay text-white shadow-sm"
-                        : "bg-surface text-ink-soft ring-1 ring-line-soft hover:text-clay hover:ring-clay/40",
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
+              <div className="mt-3">
+                <SlotButton
+                  label={ASAP}
+                  active={effectiveSlot === ASAP}
+                  onClick={() => setSlot(ASAP)}
+                  className="w-full"
+                />
               </div>
+              {SLOT_GROUPS.map((g) => {
+                const slots = SLOTS.filter((s) => s.start >= g.from && s.start < g.to);
+                if (slots.length === 0) return null;
+                const night = g.from >= SITE.nightFromHour * 60;
+                return (
+                  <div key={g.title} className="mt-4">
+                    <p className="flex items-center gap-2 text-[11.5px] font-bold tracking-[0.08em] text-ink-muted uppercase">
+                      {g.title}
+                      {night && (
+                        <span className="rounded-full bg-clay-soft px-2 py-0.5 text-[10.5px] tracking-normal text-clay normal-case">
+                          ₹{SITE.nightPrice}
+                        </span>
+                      )}
+                    </p>
+                    <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {slots.map((s) => (
+                        <SlotButton
+                          key={s.label}
+                          label={s.short}
+                          title={s.label}
+                          active={effectiveSlot === s.label}
+                          disabled={isPast(s.start)}
+                          onClick={() => setSlot(s.label)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="mt-3 text-[12.5px] leading-relaxed text-ink-faint">
+                Vets are available 8 AM to midnight. Calls from 10 PM are ₹
+                {SITE.nightPrice}.
+              </p>
 
               <div className="mt-4 rounded-xl bg-clay-soft/60 p-4">
                 <p className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-clay uppercase">
@@ -158,7 +223,7 @@ export function BookingForm() {
                 <p className="mt-1.5 font-display text-[17px] leading-snug font-bold text-ink">
                   {formatLong(date)}
                 </p>
-                <p className="mt-1 text-[13.5px] text-ink-muted">{slot}</p>
+                <p className="mt-1 text-[13.5px] text-ink-muted">{effectiveSlot}</p>
               </div>
             </div>
           </div>
@@ -301,7 +366,7 @@ export function BookingForm() {
                 Consultation
               </p>
               <p className="mt-1 font-display text-[28px] leading-none font-extrabold text-brand-deep">
-                ₹{SITE.consultPrice}
+                ₹{price}
               </p>
             </div>
             <button
@@ -409,6 +474,43 @@ function Req() {
       {" "}
       *
     </span>
+  );
+}
+
+function SlotButton({
+  label,
+  title,
+  active,
+  disabled,
+  onClick,
+  className,
+}: {
+  label: string;
+  title?: string;
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      aria-label={title}
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={active}
+      className={cn(
+        "rounded-xl px-3 py-2.5 text-center text-[13.5px] font-medium whitespace-nowrap transition-all",
+        active
+          ? "bg-clay text-white shadow-sm"
+          : "bg-surface text-ink-soft ring-1 ring-line-soft hover:text-clay hover:ring-clay/40",
+        disabled && "pointer-events-none opacity-40 line-through",
+        className,
+      )}
+    >
+      {label}
+    </button>
   );
 }
 
