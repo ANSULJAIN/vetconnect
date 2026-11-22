@@ -22,14 +22,36 @@ export function supabaseConfigured(env: Env) {
   return Boolean(env.SUPABASE_URL && secretKey(env));
 }
 
-/** The signed-in user behind a request's `Authorization: Bearer <jwt>`, or null. */
-export async function userFromRequest(request: Request, db: SupabaseClient) {
+export type AuthResult =
+  | { user: { id: string; email: string | null }; reason?: never }
+  | { user: null; reason: string };
+
+/**
+ * The signed-in user behind a request's `Authorization: Bearer <jwt>`.
+ *
+ * Asks Supabase Auth directly with the public key — the same call the browser
+ * makes — so it doesn't depend on the secret key at all. `reason` explains a
+ * failure (no token, expired, Supabase error) without exposing anything secret.
+ */
+export async function userFromRequest(request: Request, env: Env): Promise<AuthResult> {
   const header = request.headers.get("authorization") ?? "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if (!token) return null;
-  const { data, error } = await db.auth.getUser(token);
-  if (error || !data.user) return null;
-  return data.user;
+  const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+  if (!token) return { user: null, reason: "no_token" };
+
+  const apikey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? env.SUPABASE_PUBLISHABLE_KEY ?? secretKey(env);
+  if (!env.SUPABASE_URL || !apikey) return { user: null, reason: "auth_not_configured" };
+
+  const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey, authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    console.warn("auth check failed", res.status, body.slice(0, 200));
+    return { user: null, reason: `auth_${res.status}` };
+  }
+  const u = (await res.json()) as { id?: string; email?: string };
+  if (!u.id) return { user: null, reason: "auth_no_user" };
+  return { user: { id: u.id, email: u.email ?? null } };
 }
 
 /** Follow-up window after payment: the chat stays open this long. */

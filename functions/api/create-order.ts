@@ -54,8 +54,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const db = admin(env);
-  const user = await userFromRequest(request, db);
-  if (!user) return json({ ok: false, error: "Please sign in to continue." }, 401);
+  const auth = await userFromRequest(request, env);
+  if (!auth.user) {
+    return json({ ok: false, error: "Please sign in again to continue.", reason: auth.reason }, 401);
+  }
+  const user = auth.user;
 
   let body: { booking?: unknown; intake?: unknown; visitorId?: unknown };
   try {

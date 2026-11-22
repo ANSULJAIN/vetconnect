@@ -16,6 +16,9 @@ export type Env = {
    *  SUPABASE_SECRET_KEY (sb_secret_…); older ones SUPABASE_SERVICE_ROLE_KEY. */
   SUPABASE_URL?: string;
   SUPABASE_SECRET_KEY?: string;
+  /** Public key; already set for the website build, reused to check sign-ins. */
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
+  SUPABASE_PUBLISHABLE_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** For the AI intake assistant. */
   ANTHROPIC_API_KEY?: string;
