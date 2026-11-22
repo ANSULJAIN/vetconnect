@@ -54,7 +54,7 @@ function Dashboard({ doctor, onChange }: { doctor: Doctor; onChange: (d: Doctor)
 
   const load = useCallback(async () => {
     const [q, m] = await Promise.all([
-      sb.from("consultations").select("*").is("doctor_id", null).eq("status", "paid").order("paid_at"),
+      sb.from("consultations").select("*").is("doctor_id", null).eq("status", "paid").neq("customer_id", doctor.id).order("paid_at"),
       sb.from("consultations").select("*").eq("doctor_id", doctor.id).order("assigned_at", { ascending: false }).limit(50),
     ]);
     setQueue((q.data as Consultation[]) ?? []);

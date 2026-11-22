@@ -105,7 +105,7 @@ export async function markPaid(db: SupabaseClient, orderId: string, paymentId: s
       .join("\n"),
   });
 
-  await autoAssign(db, consult.id, consult.pet_species, consult.language);
+  await autoAssign(db, consult.id, consult.pet_species, consult.language, consult.customer_id);
   return { alreadyPaid: false as const, consultationId: consult.id as string };
 }
 
@@ -115,12 +115,19 @@ export async function markPaid(db: SupabaseClient, orderId: string, paymentId: s
  * online verified doctor. If nobody is online the consultation waits in the
  * queue, where any verified doctor can claim it.
  */
-export async function autoAssign(db: SupabaseClient, consultationId: string, species: string, language: string) {
+export async function autoAssign(
+  db: SupabaseClient,
+  consultationId: string,
+  species: string,
+  language: string,
+  customerId: string,
+) {
   const { data: doctors } = await db
     .from("doctors")
     .select("id, species, languages")
     .eq("status", "verified")
-    .eq("is_online", true);
+    .eq("is_online", true)
+    .neq("id", customerId); // a vet never gets their own booking
   if (!doctors?.length) return null;
 
   const { data: active } = await db

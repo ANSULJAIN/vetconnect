@@ -45,6 +45,8 @@ await patch("Allowed sign-in return addresses", {
   uri_allow_list: [
     "https://vetconnect.co.in/**",
     "https://www.vetconnect.co.in/**",
+    "https://vet.vetconnect.co.in/**",
+    "https://admin.vetconnect.co.in/**",
     "https://*.vetconnect-5e9.pages.dev/**",
     "http://localhost:3000/**",
     "http://localhost:8788/**",

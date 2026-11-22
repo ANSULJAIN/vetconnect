@@ -15,8 +15,12 @@ visitor (anonymous visitor id in localStorage)
        │                    POST /api/razorpay-webhook ─┘ opens the chat, auto-assigns a vet
        └─ 4. /chat/?c=<id>  realtime chat with the assigned vet, photos/PDFs, 72h follow-up window
 
-vet:   /doctor/  register (pending) → admin approves → dashboard: online switch, queue, chats
-admin: /admin/   approve vets, assign/reassign cases, funnel numbers
+vet:   vet.vetconnect.co.in    register (pending) → admin approves → dashboard: online switch, queue, chats
+admin: admin.vetconnect.co.in  approve vets, assign/reassign cases, funnel numbers
+
+Same build on all three addresses; functions/_middleware.ts routes each one
+(previews and localhost keep everything on one address for testing). Each
+address has its own sign-in, so vet and customer sessions never mix.
 ```
 
 The WhatsApp booking stays as a fallback ("Prefer WhatsApp?"), and is the only
