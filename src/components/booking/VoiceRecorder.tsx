@@ -57,6 +57,8 @@ export function VoiceRecorder({
   const streamRef = useRef<MediaStream | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  /** Length of the current take; a ref so the onstop handler sees the final value. */
+  const secondsRef = useRef(0);
 
   function cleanup() {
     if (tickRef.current) clearInterval(tickRef.current);
@@ -91,12 +93,12 @@ export function VoiceRecorder({
 
       rec.start();
 
-      let seconds = 0;
-      setState({ kind: "recording", seconds });
+      secondsRef.current = 0;
+      setState({ kind: "recording", seconds: 0 });
       tickRef.current = setInterval(() => {
-        seconds += 1;
-        setState({ kind: "recording", seconds });
-        if (seconds >= MAX_SECONDS) stop();
+        secondsRef.current += 1;
+        setState({ kind: "recording", seconds: secondsRef.current });
+        if (secondsRef.current >= MAX_SECONDS) stop();
       }, 1000);
     } catch (err) {
       const denied = err instanceof DOMException && err.name === "NotAllowedError";
@@ -116,8 +118,7 @@ export function VoiceRecorder({
   }
 
   async function upload(mimeType: string) {
-    const seconds =
-      state.kind === "recording" ? state.seconds : 0;
+    const seconds = secondsRef.current;
     setState({ kind: "uploading" });
 
     const type = (mimeType || "audio/webm").split(";")[0];
@@ -130,7 +131,18 @@ export function VoiceRecorder({
         headers: { "content-type": type },
         body: blob,
       });
-      const data = (await res.json()) as { ok?: boolean; url?: string; error?: string };
+      // Storage not set up (503) or the function missing entirely (404, HTML):
+      // the note can't be linked, so point the owner at WhatsApp instead.
+      if (res.status === 503 || res.status === 404) {
+        throw new Error(
+          "Voice notes can't be attached here right now. After you press Book on WhatsApp, send the voice note in that chat instead.",
+        );
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        url?: string;
+        error?: string;
+      };
       if (!res.ok || !data.ok || !data.url) {
         throw new Error(data.error ?? "Upload failed. Please try again, or type the symptoms.");
       }

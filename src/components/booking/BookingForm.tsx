@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Calendar, formatLong, toISODate } from "@/components/booking/Calendar";
 import { BookingConfirm, type Booking } from "@/components/booking/BookingConfirm";
 import { VoiceInput } from "@/components/booking/VoiceInput";
-import { VoiceRecorder } from "@/components/booking/VoiceRecorder";
 import {
   IconCake,
   IconCalendar,
@@ -109,7 +108,6 @@ export function BookingForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [voiceUrl, setVoiceUrl] = useState<string | null>(null);
 
   const [sent, setSent] = useState<{ booking: Booking; waUrl: string } | null>(null);
 
@@ -134,7 +132,6 @@ export function BookingForm() {
       name: name.trim(),
       phone: phone.replace(/\D/g, "").slice(-10),
       email: email.trim(),
-      voiceUrl,
     };
 
     const waUrl = `https://wa.me/${SITE.whatsappDigits}?text=${encodeURIComponent(
@@ -298,11 +295,6 @@ export function BookingForm() {
               setIssue((prev) => (prev ? `${prev.trimEnd()} ${text}` : text))
             }
           />
-          <VoiceRecorder onUploaded={setVoiceUrl} />
-          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-faint">
-            A cough or laboured breathing often tells a vet more than a
-            description of one — a recording is worth adding.
-          </p>
         </Section>
 
         {/* ---------- 3 · you ---------- */}

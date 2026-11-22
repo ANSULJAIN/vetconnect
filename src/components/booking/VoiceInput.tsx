@@ -75,7 +75,8 @@ export function VoiceInput({
   onTranscript: (text: string) => void;
 }) {
   const supported = useSyncExternalStore(noop, clientHasSupport, serverHasSupport);
-  const [listening, setListening] = useState(false);
+  /** Which language is being dictated right now, or null when idle. */
+  const [listening, setListening] = useState<string | null>(null);
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recRef = useRef<SpeechRecognitionLike | null>(null);
@@ -86,16 +87,18 @@ export function VoiceInput({
   function stop() {
     recRef.current?.stop();
     recRef.current = null;
-    setListening(false);
+    setListening(null);
     setInterim("");
   }
 
-  function start() {
+  function start(lang: string) {
+    // Switching language mid-dictation: drop the old recogniser first.
+    if (recRef.current) stop();
     const rec = getRecognition();
     if (!rec) return;
 
     setError(null);
-    rec.lang = LOCALE[language] ?? "en-IN";
+    rec.lang = LOCALE[lang] ?? "en-IN";
     rec.continuous = true;
     rec.interimResults = true;
 
@@ -111,6 +114,7 @@ export function VoiceInput({
     };
 
     rec.onerror = (e) => {
+      if (recRef.current !== rec) return; // a recogniser we already replaced
       setError(
         e.error === "not-allowed"
           ? "Microphone blocked. Allow access in your browser settings, or type instead."
@@ -122,31 +126,41 @@ export function VoiceInput({
     };
 
     rec.onend = () => {
-      setListening(false);
-      setInterim("");
+      // Only clear if this recogniser is still the live one — a language
+      // switch ends the old one after the new one has started.
+      if (recRef.current === rec || recRef.current === null) {
+        recRef.current = null;
+        setListening(null);
+        setInterim("");
+      }
     };
 
     recRef.current = rec;
     rec.start();
-    setListening(true);
+    setListening(lang);
   }
 
   if (!supported) return null;
 
+  // One button. It listens in the consultation language chosen above, so a
+  // Hindi speaker who picked Hindi gets Hindi without another choice here.
+  const active = listening !== null;
+
   return (
-    <div className="mt-2.5">
+    <div className="mt-2.5 flex flex-wrap items-center gap-3">
       <button
         type="button"
-        onClick={listening ? stop : start}
-        aria-pressed={listening}
+        onClick={() => (active ? stop() : start(language))}
+        aria-pressed={active}
+        aria-label={active ? "Stop dictation" : `Dictate in ${language}`}
         className={cn(
-          "inline-flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-semibold transition-all duration-300",
-          listening
+          "inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13.5px] font-semibold transition-all duration-300",
+          active
             ? "bg-clay text-white shadow-md shadow-clay/25"
             : "bg-surface text-ink-soft ring-1 ring-line-soft hover:text-brand-deep hover:ring-vivid/45",
         )}
       >
-        {listening ? (
+        {active ? (
           <span className="relative flex h-3 w-3" aria-hidden>
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-white" />
@@ -154,16 +168,19 @@ export function VoiceInput({
         ) : (
           <MicIcon className="h-4 w-4 text-brand" />
         )}
-        {listening ? "Listening — tap to stop" : `Speak in ${language}`}
+        {active ? "Listening… tap to stop" : "Dictate"}
       </button>
+      <span className="text-[12.5px] text-ink-faint">
+        {active ? `Speak in ${language}` : `Speak and we'll type it · ${language}`}
+      </span>
 
       {interim && (
-        <p className="mt-2 text-[13.5px] text-ink-faint italic" aria-live="polite">
+        <p className="w-full text-[13.5px] text-ink-faint italic" aria-live="polite">
           {interim}…
         </p>
       )}
       {error && (
-        <p role="alert" className="mt-2 text-[13px] text-clay">
+        <p role="alert" className="w-full text-[13px] text-clay">
           {error}
         </p>
       )}
