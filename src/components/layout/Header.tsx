@@ -41,7 +41,7 @@ export function Header() {
               {area === "vet" ? "For vets" : "Admin"}
             </span>
           </Link>
-          <AccountLink className="ml-auto rounded-full px-4 py-2 ring-1 ring-line" />
+          <AccountLink className="ml-auto rounded-full px-4 py-2 whitespace-nowrap ring-1 ring-line" />
         </Container>
       </header>
     );
