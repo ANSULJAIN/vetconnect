@@ -69,8 +69,11 @@ const serverHasSupport = () => false;
 export function VoiceInput({
   language,
   onTranscript,
+  children,
 }: {
   language: string;
+  /** The text field the mic sits inside. */
+  children: React.ReactNode;
   /** Called with each finalised phrase, to append to whatever is typed. */
   onTranscript: (text: string) => void;
 }) {
@@ -140,51 +143,56 @@ export function VoiceInput({
     setListening(lang);
   }
 
-  if (!supported) return null;
+  // Browsers without speech recognition just get the plain field.
+  if (!supported) return <>{children}</>;
 
-  // One button. It listens in the consultation language chosen above, so a
-  // Hindi speaker who picked Hindi gets Hindi without another choice here.
+  // One mic, inside the field's bottom-right corner — the convention from
+  // search boxes and chat apps. It listens in the consultation language chosen
+  // above, so a Hindi speaker who picked Hindi gets Hindi with no extra choice.
   const active = listening !== null;
 
   return (
-    <div className="mt-2.5 flex flex-wrap items-center gap-3">
-      <button
-        type="button"
-        onClick={() => (active ? stop() : start(language))}
-        aria-pressed={active}
-        aria-label={active ? "Stop dictation" : `Dictate in ${language}`}
-        className={cn(
-          "inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13.5px] font-semibold transition-all duration-300",
-          active
-            ? "bg-clay text-white shadow-md shadow-clay/25"
-            : "bg-surface text-ink-soft ring-1 ring-line-soft hover:text-brand-deep hover:ring-vivid/45",
-        )}
-      >
-        {active ? (
-          <span className="relative flex h-3 w-3" aria-hidden>
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-white" />
-          </span>
-        ) : (
-          <MicIcon className="h-4 w-4 text-brand" />
-        )}
-        {active ? "Listening… tap to stop" : "Dictate"}
-      </button>
-      <span className="text-[12.5px] text-ink-faint">
-        {active ? `Speak in ${language}` : `Speak and we'll type it · ${language}`}
-      </span>
+    <>
+      <div className="relative">
+        {children}
+        <button
+          type="button"
+          onClick={() => (active ? stop() : start(language))}
+          aria-pressed={active}
+          aria-label={active ? "Stop dictation" : `Dictate in ${language}`}
+          title={active ? "Stop dictation" : `Dictate (${language})`}
+          className={cn(
+            "absolute right-3 bottom-3 inline-flex h-9 items-center justify-center gap-2 rounded-full transition-all duration-300",
+            active
+              ? "bg-clay px-3.5 text-[13px] font-semibold text-white shadow-md shadow-clay/25"
+              : "w-9 bg-brand-soft text-brand-deep hover:bg-brand hover:text-white",
+          )}
+        >
+          {active ? (
+            <>
+              <span className="relative flex h-2.5 w-2.5" aria-hidden>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+              </span>
+              Listening… tap to stop
+            </>
+          ) : (
+            <MicIcon className="h-4.5 w-4.5" />
+          )}
+        </button>
+      </div>
 
       {interim && (
-        <p className="w-full text-[13.5px] text-ink-faint italic" aria-live="polite">
+        <p className="mt-2 text-[13.5px] text-ink-faint italic" aria-live="polite">
           {interim}…
         </p>
       )}
       {error && (
-        <p role="alert" className="w-full text-[13px] text-clay">
+        <p role="alert" className="mt-2 text-[13px] text-clay">
           {error}
         </p>
       )}
-    </div>
+    </>
   );
 }
 

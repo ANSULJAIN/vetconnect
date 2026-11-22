@@ -280,21 +280,22 @@ export function BookingForm() {
           <SubLabel icon={IconChat} tone="brand" htmlFor="issue" className="mt-7">
             Describe your pet&rsquo;s issue <Req />
           </SubLabel>
-          <textarea
-            id="issue"
-            required
-            rows={4}
-            value={issue}
-            onChange={(e) => setIssue(e.target.value)}
-            placeholder="Symptoms, when they started, appetite and energy levels, anything you have already tried…"
-            className={cn(inputClass, "resize-y")}
-          />
           <VoiceInput
             language={language}
             onTranscript={(text) =>
               setIssue((prev) => (prev ? `${prev.trimEnd()} ${text}` : text))
             }
-          />
+          >
+            <textarea
+              id="issue"
+              required
+              rows={4}
+              value={issue}
+              onChange={(e) => setIssue(e.target.value)}
+              placeholder="Symptoms, when they started, appetite and energy levels, anything you have already tried… or tap the mic and speak."
+              className={cn(inputClass, "block resize-none pb-14")}
+            />
+          </VoiceInput>
         </Section>
 
         {/* ---------- 3 · you ---------- */}
