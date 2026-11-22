@@ -10,7 +10,10 @@ import { SITE } from "@/data/site";
  */
 export function StickyCTA() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/consult")) return null;
+  // Hidden on the booking page and inside the signed-in app, where it would
+  // cover the form or the chat composer.
+  const hiddenOn = ["/consult", "/chat", "/account", "/doctor", "/admin", "/login"];
+  if (hiddenOn.some((p) => pathname?.startsWith(p))) return null;
 
   return (
     <div className="pointer-events-none sticky bottom-0 z-40 flex flex-col items-center gap-2 pb-4 sm:pb-6">

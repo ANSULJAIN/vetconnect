@@ -7,6 +7,7 @@ const QUICK: { label: string; href: string }[] = [
   { label: "Consult a vet online", href: "/consult" },
   { label: "Home vet visit", href: "/home-visit" },
   { label: "Vaccinations at home", href: "/vaccinations" },
+  { label: "Join as a veterinarian", href: "/doctor" },
 ];
 
 const IMPORTANT: { label: string; href: string }[] = [
