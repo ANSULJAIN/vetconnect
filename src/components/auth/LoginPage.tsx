@@ -22,10 +22,33 @@ export function LoginPage() {
     if (auth.status === "signed-in") location.replace(nextPath());
   }, [auth.status]);
 
+  if (area === "vet") {
+    return (
+      <div className="mx-auto max-w-lg">
+        <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-brand uppercase">For veterinarians</p>
+        <h1 className="mt-2 font-display text-[30px] leading-tight font-extrabold tracking-tight text-ink">
+          Consult pet parents online, on your schedule
+        </h1>
+        <ul className="mt-4 space-y-1.5 text-[15px] text-ink-muted">
+          <li>✓ Chat and video consults with paid, pre-screened cases</li>
+          <li>✓ Go online whenever you&rsquo;re free — cases come to you</li>
+          <li>✓ Verified vets only: we check your council registration</li>
+        </ul>
+        <div className="mt-7">
+          <LoginForm
+            title="Register or sign in"
+            subtitle="New here? Enter your email and the 6-digit code we send — the registration form opens next. Already registered? The same steps take you to your dashboard."
+            onSignedIn={() => location.replace(nextPath())}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-lg">
       <LoginForm
-        title={area === "vet" ? "VetConnect for veterinarians" : area === "admin" ? "VetConnect admin" : "Sign in to VetConnect"}
+        title={area === "admin" ? "VetConnect admin" : "Sign in to VetConnect"}
         subtitle="We'll email you a 6-digit code. No password needed."
         onSignedIn={() => location.replace(nextPath())}
       />
