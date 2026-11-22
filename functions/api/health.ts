@@ -51,8 +51,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 
   result.razorpay_webhook_secret = env.RAZORPAY_WEBHOOK_SECRET ? "set" : "missing";
 
+  // Recent activity, no personal data: status and timing of the last few records.
+  let recent: unknown = null;
+  if (result.supabase_secret === "ok") {
+    const db = admin(env);
+    const [c, p] = await Promise.all([
+      db.from("consultations").select("code, status, price_paise, created_at, paid_at, doctor_id").order("created_at", { ascending: false }).limit(5),
+      db.from("payments").select("status, amount_paise, created_at, paid_at, razorpay_payment_id").order("created_at", { ascending: false }).limit(5),
+    ]);
+    recent = {
+      consultations: (c.data ?? []).map((r) => ({ ...r, doctor_id: r.doctor_id ? "assigned" : null })),
+      payments: (p.data ?? []).map((r) => ({ ...r, razorpay_payment_id: r.razorpay_payment_id ? "present" : null })),
+    };
+  }
+
   const allOk = Object.entries(result)
     .filter(([k]) => !k.endsWith("_shape"))
     .every(([, v]) => v.startsWith("ok") || v === "set");
-  return json({ ok: allOk, ...result }, allOk ? 200 : 503);
+  return json({ ok: allOk, ...result, recent }, allOk ? 200 : 503);
 };
