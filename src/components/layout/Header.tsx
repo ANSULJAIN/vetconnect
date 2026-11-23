@@ -4,13 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { AccountLink } from "@/components/layout/AccountLink";
-import { useArea } from "@/lib/area";
 import { NAV, SITE } from "@/data/site";
 import { cn } from "@/lib/utils";
 
 export function Header() {
-  const area = useArea();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -28,29 +25,6 @@ export function Header() {
       document.body.style.overflow = "";
     };
   }, [open]);
-
-  // Vet and admin areas get a plain bar: no marketing menu, no "Consult" button.
-  if (area !== "main") {
-    return (
-      <header className="sticky inset-x-0 top-0 z-50 bg-surface shadow-[0_1px_0_rgba(20,32,28,0.08)]">
-        <Container size="wide" className="flex items-center gap-4 py-3">
-          {/* Logo goes to the main home page (a different address, so a plain link). */}
-          <a href="https://vetconnect.co.in/" className="flex shrink-0 items-center gap-2.5">
-            <Image src="/images/logo-mark.png" alt="" width={600} height={585} priority className="h-9 w-auto" />
-            <span className="font-display text-[19px] font-extrabold tracking-tight text-brand-deep">VetConnect</span>
-          </a>
-          {/* The badge goes to this area's own home. */}
-          <Link
-            href={area === "vet" ? "/doctor/" : "/admin/"}
-            className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-bold tracking-wide text-brand-deep uppercase hover:bg-brand hover:text-white"
-          >
-            {area === "vet" ? "Dashboard" : "Admin"}
-          </Link>
-          <AccountLink className="ml-auto rounded-full px-4 py-2 whitespace-nowrap ring-1 ring-line" />
-        </Container>
-      </header>
-    );
-  }
 
   return (
     <header
@@ -92,7 +66,6 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <AccountLink className="hidden rounded-full px-4 py-2.5 ring-1 ring-line sm:inline-block" />
           <Link
             href="/consult"
             className="hidden rounded-full bg-clay px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-clay/90 sm:inline-block"
@@ -138,10 +111,6 @@ export function Header() {
               {item.label}
             </Link>
           ))}
-          <AccountLink
-            onClick={() => setOpen(false)}
-            className="rounded-xl px-3 py-3 text-[16px] hover:bg-paper"
-          />
           <Link
             href="/consult"
             onClick={() => setOpen(false)}

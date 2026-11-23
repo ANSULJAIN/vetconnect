@@ -11,66 +11,14 @@ export type Env = {
   RAZORPAY_KEY_ID: string;
   /** Razorpay secret. Never leaves the Worker. Set as an encrypted secret. */
   RAZORPAY_KEY_SECRET: string;
-  RAZORPAY_WEBHOOK_SECRET?: string;
-  /** Supabase project URL and secret key (bypasses RLS). New projects call it
-   *  SUPABASE_SECRET_KEY (sb_secret_…); older ones SUPABASE_SERVICE_ROLE_KEY. */
-  SUPABASE_URL?: string;
-  SUPABASE_SECRET_KEY?: string;
-  /** Public key; already set for the website build, reused to check sign-ins. */
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
-  SUPABASE_PUBLISHABLE_KEY?: string;
-  SUPABASE_SERVICE_ROLE_KEY?: string;
-  /** Test copies only: charge this many paise instead of the real price. Ignored on the live domain. */
-  TEST_PRICE_PAISE?: string;
-  /** Google OAuth client for creating Meet links (see _google.ts). */
-  GOOGLE_CLIENT_ID?: string;
-  GOOGLE_CLIENT_SECRET?: string;
-  /** For the AI intake assistant. */
-  ANTHROPIC_API_KEY?: string;
+  /** Optional D1 binding. Bookings are only persisted when this is configured. */
+  DB?: D1Database;
   /** Optional R2 bucket for voice notes. Recording is hidden when absent. */
   RECORDINGS?: R2Bucket;
 };
 
-/**
- * Prices in paise. Server-side truth — the browser shows the same numbers
- * (src/data/site.ts) but never sets them.
- */
-export const DAY_PRICE_PAISE = 199_00;
-export const NIGHT_PRICE_PAISE = 299_00;
-const NIGHT_FROM_MINUTES = 22 * 60;
-
-/** Minutes past midnight in India, whatever timezone the Worker runs in. */
-function istMinutesNow() {
-  const ist = new Date(Date.now() + 330 * 60_000);
-  return ist.getUTCHours() * 60 + ist.getUTCMinutes();
-}
-
-/** "10:30 PM – 11:00 PM" -> 1350. Null for "As soon as possible" or junk. */
-function slotStartMinutes(label: string): number | null {
-  const m = /^(\d{1,2}):(\d{2}) (AM|PM)/.exec(label);
-  if (!m) return null;
-  const h = (Number(m[1]) % 12) + (m[3] === "PM" ? 12 : 0);
-  return h * 60 + Number(m[2]);
-}
-
-const LIVE_HOSTS = ["vetconnect.co.in", "www.vetconnect.co.in"];
-
-/**
- * Test-price override for preview deployments. Never applies on the live
- * domain, even if TEST_PRICE_PAISE is set there by mistake.
- */
-export function testPricePaise(env: Env, request: Request): number | null {
-  const host = new URL(request.url).hostname;
-  const n = Number(env.TEST_PRICE_PAISE);
-  if (LIVE_HOSTS.includes(host) || !Number.isInteger(n) || n < 100) return null; // Razorpay minimum ₹1
-  return n;
-}
-
-/** Night slots (10 PM onwards), and "as soon as possible" booked after 10 PM, cost more. */
-export function priceForSlot(slot: string): number {
-  const start = slotStartMinutes(slot) ?? istMinutesNow();
-  return start >= NIGHT_FROM_MINUTES ? NIGHT_PRICE_PAISE : DAY_PRICE_PAISE;
-}
+/** Consultation price in paise. Server-side truth — the browser never sets it. */
+export const CONSULT_AMOUNT_PAISE = 199_00;
 
 export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

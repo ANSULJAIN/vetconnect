@@ -24,8 +24,6 @@ export const SITE = {
   email: "care@vetconnect.co.in",
   supportEmail: "care@vetconnect.co.in",
   since: 2026,
-  /** AI follow-up questions before payment (functions/api/intake.ts). Off until we add the API key. */
-  aiIntake: false,
 } as const;
 
 export const NAV: { label: string; href: string }[] = [
@@ -33,7 +31,6 @@ export const NAV: { label: string; href: string }[] = [
   { label: "Home vet visit", href: "/home-visit" },
   { label: "Vaccinations at home", href: "/vaccinations" },
   { label: "FAQ", href: "/#faq" },
-  { label: "For vets", href: "/doctor" },
 ];
 
 export const PETS = ["Dog", "Cat", "Rabbit", "Cow", "Buffalo", "Cattle"] as const;

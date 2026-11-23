@@ -1,145 +1,111 @@
 /**
  * POST /api/create-order
  *
- * Signed-in customers only (Authorization: Bearer <supabase access token>).
+ * Creates a Razorpay order and records a pending booking. Returns the order id
+ * and the *publishable* key so the browser can open Razorpay Checkout.
  *
- * 1. Validates the booking and works out the price on the server.
- * 2. Creates the consultation (status awaiting_payment) — the future chat room.
- * 3. Creates a Razorpay order and records it in `payments`.
- *
- * Returns the order id and the publishable key so the browser can open
- * Razorpay Checkout. The chat opens only once the payment is confirmed by
- * /api/verify-payment or the webhook.
+ * The amount is set here, from CONSULT_AMOUNT_PAISE — a price sent by the
+ * browser would be trivially editable in devtools.
  */
 
-import { badRequest, json, priceForSlot, razorpayAuth, testPricePaise, validateBooking, type Env } from "./_shared";
-import { admin, supabaseConfigured, userFromRequest } from "./_supabase";
-
-type Intake = {
-  summary?: string;
-  urgency?: "routine" | "soon" | "emergency";
-  category?: string;
-  red_flags?: string[];
-};
-
-function makeCode() {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I
-  const bytes = crypto.getRandomValues(new Uint8Array(4));
-  return `VC-${[...bytes].map((b) => alphabet[b % alphabet.length]).join("")}`;
-}
-
-/** Keep only the intake fields we expect, at sane sizes. */
-function cleanIntake(raw: unknown): Intake | null {
-  if (!raw || typeof raw !== "object") return null;
-  const r = raw as Record<string, unknown>;
-  const urgency = ["routine", "soon", "emergency"].includes(r.urgency as string)
-    ? (r.urgency as Intake["urgency"])
-    : undefined;
-  return {
-    summary: typeof r.summary === "string" ? r.summary.slice(0, 1500) : undefined,
-    urgency,
-    category: typeof r.category === "string" ? r.category.slice(0, 60) : undefined,
-    red_flags: Array.isArray(r.red_flags)
-      ? r.red_flags.filter((x): x is string => typeof x === "string").slice(0, 8).map((x) => x.slice(0, 120))
-      : undefined,
-  };
-}
+import {
+  CONSULT_AMOUNT_PAISE,
+  badRequest,
+  json,
+  razorpayAuth,
+  validateBooking,
+  type Env,
+} from "./_shared";
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET || !supabaseConfigured(env)) {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
     return json(
-      { ok: false, error: "Online payment is not set up yet. Please book on WhatsApp for now." },
+      { ok: false, error: "Payments are not configured yet. Please contact support to book." },
       503,
     );
   }
 
-  const db = admin(env);
-  const auth = await userFromRequest(request, env);
-  if (!auth.user) {
-    return json({ ok: false, error: "Please sign in again to continue.", reason: auth.reason }, 401);
-  }
-  const user = auth.user;
-
-  let body: { booking?: unknown; intake?: unknown; visitorId?: unknown };
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
     return badRequest("Malformed request.");
   }
 
-  const parsed = validateBooking(body.booking);
+  const parsed = validateBooking((body as { booking?: unknown })?.booking);
   if (!parsed.ok) return badRequest(parsed.error);
-  const b = parsed.booking;
-  const intake = cleanIntake(body.intake);
-  const amount = testPricePaise(env, request) ?? priceForSlot(b.slot);
+  const { booking } = parsed;
 
-  // Keep the profile's name and phone current — the doctor sees them.
-  await db.from("profiles").update({ full_name: b.name, phone: b.phone }).eq("id", user.id);
-
-  // Insert the consultation, retrying on the (rare) code collision.
-  let consult: { id: string; code: string } | null = null;
-  for (let attempt = 0; attempt < 4 && !consult; attempt++) {
-    const { data, error } = await db
-      .from("consultations")
-      .insert({
-        code: makeCode(),
-        customer_id: user.id,
-        customer_name: b.name,
-        customer_phone: b.phone,
-        pet_species: b.pet || "Other",
-        pet_gender: b.gender || null,
-        pet_age: b.age || null,
-        language: b.language || "English",
-        issue: b.issue,
-        slot_date: /^\d{4}-\d{2}-\d{2}$/.test(b.date) ? b.date : null,
-        slot_label: b.slot || null,
-        price_paise: amount,
-        intake,
-        urgency: intake?.urgency ?? null,
-        visitor_id: typeof body.visitorId === "string" ? body.visitorId.slice(0, 64) : null,
-      })
-      .select("id, code")
-      .single();
-    if (data) consult = data;
-    else if (error?.code !== "23505") {
-      console.error("consultation insert failed", error);
-      return json({ ok: false, error: "Could not save your booking. Please try again." }, 500);
-    }
-  }
-  if (!consult) return json({ ok: false, error: "Please try again." }, 500);
+  const bookingId = crypto.randomUUID();
+  // Razorpay caps receipt at 40 characters.
+  const receipt = `vc_${bookingId.replace(/-/g, "").slice(0, 30)}`;
 
   const rzpRes = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
-    headers: { authorization: razorpayAuth(env), "content-type": "application/json" },
+    headers: {
+      authorization: razorpayAuth(env),
+      "content-type": "application/json",
+    },
     body: JSON.stringify({
-      amount,
+      amount: CONSULT_AMOUNT_PAISE,
       currency: "INR",
-      receipt: consult.code, // Razorpay caps receipt at 40 chars
-      notes: { consultationId: consult.id, code: consult.code, pet: b.pet, slot: `${b.date} ${b.slot}` },
+      receipt,
+      notes: {
+        bookingId,
+        pet: booking.pet,
+        slot: `${booking.date} ${booking.slot}`,
+        phone: booking.phone,
+      },
     }),
   });
 
   if (!rzpRes.ok) {
-    console.error("razorpay order failed", rzpRes.status, await rzpRes.text());
-    await db.from("consultations").update({ status: "cancelled" }).eq("id", consult.id);
+    const detail = await rzpRes.text();
+    console.error("razorpay order failed", rzpRes.status, detail);
     return json({ ok: false, error: "Could not start the payment. Please try again." }, 502);
   }
+
   const order = (await rzpRes.json()) as { id: string; amount: number; currency: string };
 
-  await db.from("payments").insert({
-    consultation_id: consult.id,
-    razorpay_order_id: order.id,
-    amount_paise: order.amount,
-  });
+  // Persist as pending. Without a D1 binding the booking still goes through —
+  // it just isn't stored, and the Razorpay dashboard is the only record.
+  if (env.DB) {
+    try {
+      await env.DB.prepare(
+        `INSERT INTO bookings
+           (id, order_id, status, amount, name, phone, email, pet, gender, age,
+            language, slot_date, slot_time, issue, created_at)
+         VALUES (?1,?2,'pending',?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14)`,
+      )
+        .bind(
+          bookingId,
+          order.id,
+          CONSULT_AMOUNT_PAISE,
+          booking.name,
+          booking.phone,
+          booking.email,
+          booking.pet,
+          booking.gender,
+          booking.age,
+          booking.language,
+          booking.date,
+          booking.slot,
+          booking.issue,
+          new Date().toISOString(),
+        )
+        .run();
+    } catch (err) {
+      // A storage failure shouldn't block the customer from paying.
+      console.error("d1 insert failed", err);
+    }
+  }
 
   return json({
     ok: true,
-    consultationId: consult.id,
-    code: consult.code,
+    bookingId,
     orderId: order.id,
     amount: order.amount,
     currency: order.currency,
     keyId: env.RAZORPAY_KEY_ID,
-    prefill: { name: b.name, contact: b.phone, email: user.email ?? "" },
   });
 };

@@ -15,11 +15,12 @@
  */
 
 import { hmacSha256Hex, json, timingSafeEqual, type Env } from "./_shared";
-import { admin, markPaid, supabaseConfigured } from "./_supabase";
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+type WebhookEnv = Env & { RAZORPAY_WEBHOOK_SECRET: string };
+
+export const onRequestPost: PagesFunction<WebhookEnv> = async ({ request, env }) => {
   const secret = env.RAZORPAY_WEBHOOK_SECRET;
-  if (!secret || !supabaseConfigured(env)) return json({ ok: false, error: "Webhook not configured." }, 503);
+  if (!secret) return json({ ok: false, error: "Webhook not configured." }, 503);
 
   const signature = request.headers.get("x-razorpay-signature");
   if (!signature) return json({ ok: false, error: "Missing signature." }, 400);
@@ -32,7 +33,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ ok: false, error: "Invalid signature." }, 400);
   }
 
-  let event: { event?: string; payload?: { payment?: { entity?: { id?: string; order_id?: string } } } };
+  let event: {
+    event?: string;
+    payload?: { payment?: { entity?: { id?: string; order_id?: string; notes?: Record<string, string> } } };
+  };
   try {
     event = JSON.parse(raw);
   } catch {
@@ -40,25 +44,32 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const payment = event.payload?.payment?.entity;
-  if (payment?.order_id) {
-    const db = admin(env);
-    try {
-      if (event.event === "payment.captured") {
-        await markPaid(db, payment.order_id, payment.id ?? null);
-      } else if (event.event === "payment.failed") {
-        await db
-          .from("payments")
-          .update({ status: "failed", razorpay_payment_id: payment.id ?? null })
-          .eq("razorpay_order_id", payment.order_id)
-          .eq("status", "created");
+  const bookingId = payment?.notes?.bookingId;
+
+  if (env.DB && payment?.order_id) {
+    const status =
+      event.event === "payment.captured"
+        ? "paid"
+        : event.event === "payment.failed"
+          ? "failed"
+          : null;
+
+    if (status) {
+      try {
+        // Match on order_id so this works even if notes were stripped.
+        await env.DB.prepare(
+          `UPDATE bookings
+              SET status = ?1, payment_id = ?2, paid_at = ?3
+            WHERE order_id = ?4 AND status != 'paid'`,
+        )
+          .bind(status, payment.id ?? null, new Date().toISOString(), payment.order_id)
+          .run();
+      } catch (err) {
+        console.error("webhook d1 update failed", err, bookingId);
       }
-    } catch (err) {
-      console.error("webhook processing failed", err);
-      // 500 so Razorpay retries — the money moved and we must record it.
-      return json({ ok: false }, 500);
     }
   }
 
-  // 200 on a valid signature — a non-2xx makes Razorpay retry for days.
+  // Always 200 on a valid signature — a non-2xx makes Razorpay retry for days.
   return json({ ok: true });
 };

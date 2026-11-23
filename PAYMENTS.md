@@ -1,7 +1,5 @@
 # Payments and backend
 
-> **Superseded:** payments now write to Supabase, not D1. See BACKEND.md for the current flow and setup.
-
 The site is a static export served by Cloudflare Pages. The two things a
 payment needs that static hosting cannot do — holding a secret key and deciding
 the price — live in **Cloudflare Pages Functions**, small Workers deployed from

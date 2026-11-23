@@ -3,7 +3,6 @@ import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyCTA } from "@/components/sections/StickyCTA";
-import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { SITE } from "@/data/site";
 import "./globals.css";
 
@@ -47,7 +46,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col overflow-x-hidden bg-paper">
-        <PageViewTracker />
         <Header />
         {/* StickyCTA lives inside main so it stops travelling at the footer. */}
         <main className="flex-1">
