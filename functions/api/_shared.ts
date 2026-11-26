@@ -15,6 +15,8 @@ export type Env = {
   DB?: D1Database;
   /** Optional R2 bucket for voice notes. Recording is hidden when absent. */
   RECORDINGS?: R2Bucket;
+  /** Google Apps Script web-app URL for the bookings sheet (scripts/google-sheet). */
+  BOOKINGS_SHEET_URL?: string;
 };
 
 /** Consultation price in paise. Server-side truth — the browser never sets it. */

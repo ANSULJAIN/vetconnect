@@ -90,6 +90,34 @@ function buildMessage(b: Booking) {
     .join("\n");
 }
 
+/** Copies the booking into the bookings Google Sheet. Never blocks or breaks WhatsApp. */
+function saveToSheet(b: Booking) {
+  const q = new URLSearchParams(location.search);
+  const source =
+    [q.get("utm_source"), q.get("utm_medium"), q.get("utm_campaign")].filter(Boolean).join(" / ") ||
+    (document.referrer ? new URL(document.referrer).hostname : "direct");
+  fetch("/api/lead", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    keepalive: true,
+    body: JSON.stringify({
+      ref: b.ref,
+      date: b.date,
+      slot: b.slot,
+      price: b.price,
+      pet: b.pet,
+      gender: b.gender,
+      age: b.age,
+      language: b.language,
+      issue: b.issue,
+      name: b.name,
+      phone: b.phone,
+      email: b.email,
+      source,
+    }),
+  }).catch(() => {});
+}
+
 export function BookingForm() {
   const [date, setDate] = useState(() => toISODate(new Date()));
   const [slot, setSlot] = useState(ASAP);
@@ -141,6 +169,7 @@ export function BookingForm() {
     // Opened before the modal renders, so it still counts as a user gesture
     // and is far less likely to be blocked.
     window.open(waUrl, "_blank", "noopener,noreferrer");
+    saveToSheet(booking);
     setSent({ booking, waUrl });
   }
 
